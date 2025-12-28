@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calvo Games - Iniciar Sesión</title>
+<title>Registro - Calvo Games</title>
 <style>
 body { font-family: Arial; background:#1e1e1e; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
 .box { background:#2c2c2c; padding:30px; border-radius:12px; width:320px; text-align:center; }
@@ -17,17 +17,18 @@ a { color:#ff9800; text-decoration:none; display:block; margin-top:10px; }
 <body>
 
 <div class="box">
-  <h2>Iniciar Sesión</h2>
-  <input type="email" id="email" placeholder="Correo">
-  <input type="password" id="password" placeholder="Contraseña">
-  <button onclick="login()">Iniciar sesión</button>
-  <p id="status">No hay sesión iniciada</p>
-  <a href="/register">¿No tienes cuenta? Regístrate</a>
+<h2>Registro</h2>
+<input type="text" id="name" placeholder="Nombre">
+<input type="email" id="email" placeholder="Correo">
+<input type="password" id="password" placeholder="Contraseña">
+<button id="registerBtn" type="button">Registrarse</button>
+<p id="status">No hay sesión iniciada</p>
+<a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAqprLLzZIfM2WnJsHISksgraZ2NJnQnRw",
@@ -43,23 +44,22 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const status = document.getElementById('status');
 
-window.login = () => {
-  const email = document.getElementById('email').value;
-  const pass = document.getElementById('password').value;
-  signInWithEmailAndPassword(auth, email, pass)
-    .then(userCredential => {
-      // Login correcto
-      window.location.href = "/index.html";
-    })
-    .catch(error => {
-      // Mostrar error si la cuenta no existe o contraseña incorrecta
-      status.textContent = "Error: " + error.message;
-    });
-};
+document.addEventListener('DOMContentLoaded', () => {
+  const registerBtn = document.getElementById('registerBtn');
+  registerBtn.addEventListener('click', () => {
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
 
-onAuthStateChanged(auth, user => {
-  if(user) status.textContent = "Conectado como: " + (user.displayName || user.email);
-  else status.textContent = "No hay sesión iniciada";
+    if(!name){ status.textContent = "Debes ingresar un nombre"; return; }
+
+    createUserWithEmailAndPassword(auth, email, pass)
+      .then(userCredential => {
+        updateProfile(userCredential.user, { displayName: name })
+          .then(()=> { window.location.href="/index.html"; });
+      })
+      .catch(error => { status.textContent = "Error: " + error.message; });
+  });
 });
 </script>
 
