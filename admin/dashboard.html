@@ -3,35 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Pro | Calvo Games</title>
+    <title>Panel de Control | Calvo Games</title>
     <link rel="icon" href="/CalvoGames_files/favicon.ico" type="image/x-icon">
+    
     <style>
-        body { background-color: #121212; color: #eee; font-family: sans-serif; margin: 0; padding: 20px; }
+        body { background-color: #0f0f0f; color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
         .container { max-width: 1100px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        h1 { margin: 0; color: #ff9800; font-size: 24px; }
-        .btn-volver { text-decoration: none; color: #ccc; padding: 8px 15px; border: 1px solid #444; border-radius: 5px; font-size: 14px; }
-        .table-container { background: #1e1e1e; border-radius: 10px; border: 1px solid #333; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 15px; border-bottom: 1px solid #333; font-size: 14px; }
-        th { background: #252525; color: #ff9800; }
-        
-        /* ETIQUETAS DE ROL */
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .badge-admin { background: #2ecc71; color: #000; }
-        .badge-user { background: #555; color: #fff; }
+        h1 { margin: 0; color: #ff9800; font-size: 22px; }
+        .btn-volver { text-decoration: none; color: #ccc; padding: 8px 15px; border: 1px solid #444; border-radius: 6px; font-size: 13px; }
 
-        .btn-opt { border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px; color: white; }
-        .btn-role { background: #9c27b0; } /* Morado para cambiar rol */
-        .btn-edit { background: #2196F3; }
-        .btn-delete { background: #f44336; }
+        .table-container { background: #181818; border-radius: 12px; border: 1px solid #333; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 15px; border-bottom: 1px solid #222; font-size: 14px; }
+        th { background: #222; color: #ff9800; text-transform: uppercase; font-size: 11px; }
+
+        /* BADGES DE RANGO */
+        .badge { padding: 5px 10px; border-radius: 4px; font-size: 10px; font-weight: 900; text-transform: uppercase; }
+        .badge-owner { background: #2ecc71; color: #052e16; } /* VERDE */
+        .badge-admin { background: #e74c3c; color: #fff; }    /* ROJO */
+        .badge-user { background: #444; color: #bbb; }
+
+        /* BOTONES ACCIÓN */
+        .btn-opt { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; color: white; margin-right: 5px; }
+        .btn-role { background: #8e44ad; }
+        .btn-edit { background: #2980b9; }
+        .btn-delete { background: #c0392b; }
+        
+        .protegido { color: #555; font-style: italic; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>⚙️ GESTIÓN DE USUARIOS Y PERMISOS</h1>
+        <h1>⚙️ GESTIÓN DE USUARIOS</h1>
         <a href="/index.html" class="btn-volver">← Volver</a>
     </header>
 
@@ -41,12 +47,12 @@
                 <tr>
                     <th>Usuario</th>
                     <th>Email</th>
-                    <th>Rol</th>
+                    <th>Rango</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="user-list">
-                <tr><td colspan="4" style="text-align:center;">Cargando usuarios...</td></tr>
+                <tr><td colspan="4" style="text-align:center; padding:20px;">Cargando...</td></tr>
             </tbody>
         </table>
     </div>
@@ -67,10 +73,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+    const MASTER_EMAIL = "keray.mendez@gmail.com";
 
-    // Seguridad: Solo tú entras
     auth.onAuthStateChanged((user) => {
-        if (!user || user.email !== "keray.mendez@gmail.com") {
+        if (!user || user.email !== MASTER_EMAIL) {
             window.location.href = "/index.html";
         } else {
             cargarUsuarios();
@@ -81,20 +87,32 @@
         db.collection("users").onSnapshot((querySnapshot) => {
             const userList = document.getElementById('user-list');
             userList.innerHTML = "";
+            
             querySnapshot.forEach((doc) => {
                 const u = doc.data();
                 const id = doc.id;
-                const esAdmin = u.rol === "admin";
-                
+                let bClass = "badge-user";
+                let bTexto = "Usuario";
+
+                if (u.email === MASTER_EMAIL) {
+                    bClass = "badge-owner";
+                    bTexto = "OWNER";
+                } else if (u.rol === "admin") {
+                    bClass = "badge-admin";
+                    bTexto = "ADMIN";
+                }
+
                 userList.innerHTML += `
                     <tr>
                         <td><strong>${u.username}</strong></td>
                         <td>${u.email}</td>
-                        <td><span class="badge ${esAdmin ? 'badge-admin' : 'badge-user'}">${u.rol || 'user'}</span></td>
+                        <td><span class="badge ${bClass}">${bTexto}</span></td>
                         <td>
-                            <button class="btn-opt btn-role" onclick="toggleAdmin('${id}', '${u.rol}')">Subir/Bajar Admin</button>
-                            <button class="btn-opt btn-edit" onclick="editarUser('${id}', '${u.username}')">Editar</button>
-                            <button class="btn-opt btn-delete" onclick="eliminarUser('${id}')">Borrar</button>
+                            ${u.email !== MASTER_EMAIL ? `
+                                <button class="btn-opt btn-role" onclick="toggleAdmin('${id}', '${u.rol}')">Rango</button>
+                                <button class="btn-opt btn-edit" onclick="editarUser('${id}', '${u.username}')">Editar</button>
+                                <button class="btn-opt btn-delete" onclick="eliminarUser('${id}')">Borrar</button>
+                            ` : '<span class="protegido">🛡️ Cuenta Protegida</span>'}
                         </td>
                     </tr>
                 `;
@@ -103,9 +121,8 @@
     }
 
     function toggleAdmin(id, rolActual) {
-        const nuevoRol = rolActual === "admin" ? "user" : "admin";
-        db.collection("users").doc(id).update({ rol: nuevoRol })
-          .then(() => alert("Rol actualizado a " + nuevoRol));
+        const nuevoRol = (rolActual === "admin") ? "user" : "admin";
+        db.collection("users").doc(id).update({ rol: nuevoRol });
     }
 
     function editarUser(id, nombre) {
