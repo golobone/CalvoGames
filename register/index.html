@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro - Calvo Games</title>
+<title>Registro - Prueba</title>
 <style>
 body {
   font-family: Arial; 
@@ -63,80 +63,55 @@ button.active {
   color: #fff;
   font-weight:bold;
 }
-a {
-  color:#ff9800; 
-  text-decoration:none; 
-  display:block; 
-  margin-top:10px;
-}
 </style>
 </head>
 <body>
 
 <div class="box">
-<h2>Registro</h2>
+<h2>Registro de prueba</h2>
 <input type="text" id="name" placeholder="Nombre">
 <input type="email" id="email" placeholder="Correo">
 <input type="password" id="password" placeholder="Contraseña">
 <button id="registerBtn" type="button">Registrarse</button>
 <p id="status">No hay sesión iniciada</p>
-<a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
 </div>
 
-<!-- Firebase UMD -->
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-auth-compat.js"></script>
-
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAqprLLzZIfM2WnJsHISksgraZ2NJnQnRw",
-  authDomain: "calvogames-v1.firebaseapp.com",
-  projectId: "calvogames-v1",
-  storageBucket: "calvogames-v1.firebasestorage.app",
-  messagingSenderId: "490748488828",
-  appId: "1:490748488828:web:eb32857a4e203ce33b6df9",
-  measurementId: "G-334HNXG644"
-};
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('registerBtn');
+  const status = document.getElementById('status');
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const btn = document.getElementById('registerBtn');
-const status = document.getElementById('status');
+  btn.addEventListener('click', () => {
+    // Animación del botón
+    btn.classList.add('active');
+    setTimeout(() => btn.classList.remove('active'), 300);
 
-btn.addEventListener('click', () => {
-  // Animación de botón
-  btn.classList.add('active');
-  setTimeout(() => btn.classList.remove('active'), 300);
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value.trim();
 
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const pass = document.getElementById('password').value.trim();
-
-  // Validación básica
-  if(!name || !email || !pass){
-    status.textContent = "Todos los campos son obligatorios.";
-    status.className = "error";
-    return;
-  }
-
-  status.textContent = "Registrando usuario...";
-  status.className = "";
-
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(userCredential => {
-      // Guardar nombre
-      return userCredential.user.updateProfile({ displayName: name });
-    })
-    .then(() => {
-      status.textContent = "¡Usuario registrado correctamente! Redirigiendo...";
-      status.className = "success";
-      setTimeout(() => { window.location.href = "/index.html"; }, 1500);
-    })
-    .catch(error => {
-      status.textContent = error.message; // Mensaje grande y visible
+    // Validación simple
+    if (!name || !email || !pass) {
+      status.textContent = "Todos los campos son obligatorios.";
       status.className = "error";
-      console.error(error);
-    });
+      return;
+    }
+
+    // Simulación de registro
+    status.textContent = "Registrando usuario...";
+    status.className = "success";
+
+    // Simulamos un "registro" con retraso para mostrar animación
+    setTimeout(() => {
+      if (email === "existente@test.com") {
+        status.textContent = "Error: El correo ya existe.";
+        status.className = "error";
+      } else {
+        status.textContent = "¡Usuario registrado correctamente!";
+        status.className = "success";
+      }
+    }, 1000);
+  });
 });
 </script>
 
