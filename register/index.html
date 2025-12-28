@@ -1,47 +1,79 @@
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro - Calvo Games</title>
+    <style>
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #252525; padding: 30px; border-radius: 10px; width: 300px; text-align: center; border: 1px solid #333; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; background: #333; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #ff9800; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 15px; }
+        #status { margin-top: 15px; font-size: 14px; color: #ff9800; }
+    </style>
+</head>
+<body>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAqprLLzZIfM2WnJsHISksgraZ2NJnQnRw",
-        authDomain: "calvogames-v1.firebaseapp.com",
-        projectId: "calvogames-v1",
-        storageBucket: "calvogames-v1.firebasestorage.app",
-        messagingSenderId: "490748488828",
-        appId: "1:490748488828:web:eb32857a4e203ce33b6df9"
-    };
+    <div class="card">
+        <h2>Crear Cuenta</h2>
+        <input type="text" id="name" placeholder="Nombre de usuario">
+        <input type="email" id="email" placeholder="Correo electrónico">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button id="registerBtn">Registrarse</button>
+        <div id="status">Esperando datos...</div>
+        <p><a href="../login/index.html" style="color:gray; font-size: 12px;">¿Ya tienes cuenta? Entra aquí</a></p>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
 
-    document.getElementById('registerBtn').onclick = async () => {
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-        const status = document.getElementById('status');
+        const firebaseConfig = {
+            apiKey: "AIzaSyAqprLLzZIfM2WnJsHISksgraZ2NJnQnRw",
+            authDomain: "calvogames-v1.firebaseapp.com",
+            projectId: "calvogames-v1",
+            storageBucket: "calvogames-v1.firebasestorage.app",
+            messagingSenderId: "490748488828",
+            appId: "1:490748488828:web:eb32857a4e203ce33b6df9"
+        };
 
-        try {
-            // CREAR USUARIO
-            const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            
-            // GUARDAR NOMBRE EN EL PERFIL
-            await updateProfile(userCredential.user, { displayName: name });
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-            // GUARDAR EN LA BASE DE DATOS (Lo que acabas de crear)
-            await setDoc(doc(db, "users", userCredential.user.uid), {
-                nombre: name,
-                correo: email,
-                fecha: new Date()
-            });
+        // Usamos window.onload para asegurar que el botón existe antes de asignarle el click
+        window.onload = () => {
+            const btn = document.getElementById('registerBtn');
+            const status = document.getElementById('status');
 
-            status.innerText = "¡Registrado con éxito! Redirigiendo...";
-            setTimeout(() => window.location.href = "../index.html", 2000);
+            btn.onclick = async () => {
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const pass = document.getElementById('password').value;
 
-        } catch (error) {
-            console.error("Error completo:", error);
-            status.innerText = "Error: " + error.message;
-        }
-    };
-</script>
+                if(!name || !email || !pass) {
+                    status.innerText = "⚠️ Rellena todos los campos";
+                    return;
+                }
+
+                status.innerText = "Procesando...";
+
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                    await updateProfile(userCredential.user, { displayName: name });
+                    await setDoc(doc(db, "users", userCredential.user.uid), {
+                        nombre: name,
+                        correo: email,
+                        fecha: new Date()
+                    });
+                    status.innerText = "✅ ¡Registrado! Redirigiendo...";
+                    setTimeout(() => window.location.href = "../index.html", 2000);
+                } catch (error) {
+                    status.innerText = "❌ Error: " + error.message;
+                    console.error(error);
+                }
+            };
+        };
+    </script>
+</body>
+</html>
