@@ -25,4 +25,4 @@ Proyecto desarrollado con la ayuda de:
 * `perfil.html`: Ajustes de usuario.
 
 ---
-Si hay algún problema, avisad. ¡A jugar!
+© 2025 Calvo Games.
