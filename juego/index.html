@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>WEB-STRIKE: TITAN ELITE | Prototype</title>
+    <title>WEB-STRIKE: TITAN ELITE | Combat Engine</title>
     <style>
         :root {
             --primary: #eebc51;
@@ -13,51 +13,28 @@
 
         body, html { margin: 0; padding: 0; overflow: hidden; background: var(--bg); font-family: 'Courier New', monospace; color: white; }
 
-        /* POST-PROCESSING */
-        #vignette {
-            position: fixed; inset: 0; pointer-events: none; z-index: 100;
-            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
-        }
-        #grain {
-            position: fixed; inset: 0; pointer-events: none; z-index: 101; opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
-
-        /* LOADING */
-        #uplink {
-            position: fixed; inset: 0; z-index: 200; background: var(--bg);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .progress-bar { width: 300px; height: 4px; background: #222; border: 1px solid var(--primary); margin-top: 20px; }
-        #progress-fill { width: 0%; height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        /* EFECTOS VISUALES */
+        #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 100; box-shadow: inset 0 0 150px rgba(0,0,0,0.9); }
+        #grain { position: fixed; inset: 0; pointer-events: none; z-index: 101; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 
         /* HUD */
         #hud { position: fixed; inset: 0; pointer-events: none; z-index: 50; display: none; }
         .skew { transform: skewX(-5deg); background: var(--hud-bg); border-left: 4px solid var(--primary); padding: 10px 20px; position: absolute; }
-        
         #health-armor { bottom: 20px; left: 20px; }
         #weapon-info { bottom: 20px; right: 20px; text-align: right; }
-        #minimap { top: 20px; left: 20px; width: 150px; height: 150px; border: 2px solid var(--primary); }
+        #killfeed { top: 20px; right: 20px; text-align: right; }
+        .kill-msg { background: rgba(255,0,0,0.2); padding: 5px; margin-top: 5px; font-size: 0.8rem; border-right: 3px solid var(--danger); animation: slide 0.3s forwards; }
+        @keyframes slide { from { transform: translateX(100%); } to { transform: translateX(0); } }
         
-        #crosshair {
-            position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
-            transform: translate(-50%, -50%);
-        }
-        #crosshair::before, #crosshair::after { content: ''; position: absolute; background: var(--primary); opacity: 0.8; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); }
+        #crosshair::before, #crosshair::after { content: ''; position: absolute; background: var(--primary); }
         #crosshair::before { width: 2px; height: 100%; left: 9px; }
         #crosshair::after { height: 2px; width: 100%; top: 9px; }
 
-        /* MENU */
-        #menu {
-            position: fixed; inset: 0; z-index: 150; 
-            background: radial-gradient(circle, rgba(20,30,40,0.8) 0%, rgba(11,12,14,1) 100%);
-            backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .btn { 
-            border: 1px solid var(--primary); color: var(--primary); padding: 10px 40px; 
-            text-transform: uppercase; cursor: pointer; transition: 0.3s; margin: 10px;
-        }
-        .btn:hover { background: var(--primary); color: #000; }
+        /* MENÚ */
+        #menu { position: fixed; inset: 0; z-index: 150; background: radial-gradient(circle, #141e28 0%, #0b0c0e 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn { border: 1px solid var(--primary); color: var(--primary); padding: 15px 50px; cursor: pointer; transition: 0.3s; letter-spacing: 2px; }
+        .btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
     </style>
 </head>
 <body>
@@ -65,28 +42,21 @@
 <div id="vignette"></div>
 <div id="grain"></div>
 
-<div id="uplink">
-    <div style="letter-spacing: 5px; color: var(--primary)">ESTABLISHING UPLINK...</div>
-    <div class="progress-bar"><div id="progress-fill"></div></div>
-</div>
-
 <div id="menu">
-    <h1 style="color: var(--primary); font-size: 3rem;">WEB-STRIKE</h1>
-    <div class="btn" onclick="startGame()">INITIALIZE COMBAT</div>
-    <div style="margin-top: 30px; opacity: 0.6; font-size: 0.8rem; border-top: 1px solid #333; padding: 20px;">
-        SERVER: TITAN-NODE-01 | PING: 14MS | REGION: EU-WEST
-    </div>
+    <h1 style="color: var(--primary); font-size: 3.5rem; margin-bottom: 0;">WEB-STRIKE</h1>
+    <p style="opacity: 0.5; margin-bottom: 40px;">PROTOCOLO TITAN ELITE v2.0</p>
+    <div class="btn" onclick="startGame()">DESPLEGAR EN ZONA CALIENTE</div>
 </div>
 
 <div id="hud">
-    <canvas id="minimap"></canvas>
+    <div id="killfeed"></div>
     <div id="health-armor" class="skew">
-        <div style="font-size: 0.7rem; color: var(--primary)">HP / AP</div>
-        <span id="hp">100</span> | <span id="ap">100</span>
+        <div style="font-size: 0.7rem; color: var(--primary)">ESTADO DEL OPERADOR</div>
+        <span id="hp-display">100</span> HP | <span id="ap-display">100</span> AP
     </div>
     <div id="weapon-info" class="skew">
-        <div style="font-size: 0.7rem; color: var(--primary)">AK-47 // AUTO</div>
-        <span>30 / 90</span>
+        <div style="font-size: 0.7rem; color: var(--primary)">AK-47 // MUNICIÓN</div>
+        <span id="ammo-display">30 / 90</span>
     </div>
     <div id="crosshair"></div>
 </div>
@@ -94,143 +64,162 @@
 <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-    // --- 1. PROCEDURAL ASSET GENERATION ---
+    // --- 1. GENERADOR DE TEXTURAS ---
     class TextureFactory {
-        static createConcrete() {
+        static createEnemyTex() {
             const canvas = document.createElement('canvas');
-            canvas.width = canvas.height = 256;
+            canvas.width = 64; canvas.height = 64;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#444'; ctx.fillRect(0,0,256,256);
-            for(let i=0; i<2000; i++) {
-                ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.1})`;
-                ctx.fillRect(Math.random()*256, Math.random()*256, 1, 1);
-            }
+            ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,64,64);
+            ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 4;
+            ctx.strokeRect(5,5,54,54);
             return new THREE.CanvasTexture(canvas);
         }
-        static createBrick() {
+        static createWall() {
             const canvas = document.createElement('canvas');
-            canvas.width = canvas.height = 256;
+            canvas.width = 256; canvas.height = 256;
             const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#6e3b2e'; ctx.fillRect(0,0,256,256);
-            ctx.strokeStyle = '#442211'; ctx.lineWidth = 4;
-            for(let y=0; y<256; y+=32) {
-                let off = (y%64===0)? 0 : 32;
-                for(let x=0; x<256; x+=64) ctx.strokeRect(x-off, y, 64, 32);
+            ctx.fillStyle = '#333'; ctx.fillRect(0,0,256,256);
+            ctx.strokeStyle = '#222';
+            for(let i=0; i<256; i+=32) {
+                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(256,i); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,256); ctx.stroke();
             }
-            return new THREE.CanvasTexture(canvas);
-        }
-        static createCrate() {
-            const canvas = document.createElement('canvas');
-            canvas.width = canvas.height = 256;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#5d4037'; ctx.fillRect(0,0,256,256);
-            ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 12;
-            ctx.strokeRect(10,10,236,236);
-            ctx.beginPath(); ctx.moveTo(10,10); ctx.lineTo(246,246);
-            ctx.moveTo(246,10); ctx.lineTo(10,246); ctx.stroke();
             return new THREE.CanvasTexture(canvas);
         }
     }
 
-    // --- 2. PROCEDURAL AUDIO ---
+    // --- 2. SISTEMA DE AUDIO ---
     class AudioSys {
-        constructor() {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        playAK() {
+        constructor() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+        playShot() {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
-            const filter = this.ctx.createBiquadFilter();
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.1);
-            filter.type = 'lowpass'; filter.frequency.value = 1200;
-            gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-            osc.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+            osc.frequency.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(this.ctx.currentTime + 0.1);
         }
     }
 
-    // --- 3. GAME ENGINE CORE ---
-    let scene, camera, renderer, audio, clock, world;
+    // --- 3. LÓGICA DE PARTÍCULAS ---
+    class ParticleSys {
+        constructor(scene) {
+            this.scene = scene;
+            this.particles = [];
+        }
+        spawn(pos, color, count = 5) {
+            for(let i=0; i<count; i++) {
+                const geo = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+                const mat = new THREE.MeshBasicMaterial({color: color});
+                const p = new THREE.Mesh(geo, mat);
+                p.position.copy(pos);
+                p.userData.velocity = new THREE.Vector3((Math.random()-0.5)*0.1, Math.random()*0.1, (Math.random()-0.5)*0.1);
+                p.userData.life = 1.0;
+                this.scene.add(p);
+                this.particles.push(p);
+            }
+        }
+        update() {
+            for(let i=this.particles.length-1; i>=0; i--) {
+                const p = this.particles[i];
+                p.position.add(p.userData.velocity);
+                p.userData.life -= 0.02;
+                p.scale.setScalar(p.userData.life);
+                if(p.userData.life <= 0) {
+                    this.scene.remove(p);
+                    this.particles.splice(i, 1);
+                }
+            }
+        }
+    }
+
+    // --- 4. CLASE ENEMIGO ---
+    class Enemy {
+        constructor(scene, pos) {
+            const geo = new THREE.BoxGeometry(1, 2, 1);
+            const mat = new THREE.MeshStandardMaterial({map: TextureFactory.createEnemyTex(), color: 0xff0000});
+            this.mesh = new THREE.Mesh(geo, mat);
+            this.mesh.position.copy(pos);
+            this.mesh.userData.isEnemy = true;
+            this.health = 100;
+            this.scene = scene;
+            scene.add(this.mesh);
+        }
+        update(playerPos) {
+            const dir = new THREE.Vector3().subVectors(playerPos, this.mesh.position).normalize();
+            dir.y = 0;
+            this.mesh.position.add(dir.multiplyScalar(0.03));
+            this.mesh.lookAt(playerPos.x, 1, playerPos.z);
+        }
+        takeDamage(amt, particleSys) {
+            this.health -= amt;
+            particleSys.spawn(this.mesh.position, 0xff0000, 10);
+            if(this.health <= 0) this.die();
+        }
+        die() {
+            this.scene.remove(this.mesh);
+            const feed = document.getElementById('killfeed');
+            const msg = document.createElement('div');
+            msg.className = 'kill-msg';
+            msg.innerText = "OPERADOR > ELIMINADO > HOSTIL_UNIT";
+            feed.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+            return true;
+        }
+    }
+
+    // --- 5. MOTOR PRINCIPAL ---
+    let scene, camera, renderer, audio, clock, particles;
+    let enemies = [];
     const move = { f: false, b: false, l: false, r: false };
     const velocity = new THREE.Vector3();
+    const raycaster = new THREE.Raycaster();
 
     function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0c0e);
-        scene.fog = new THREE.Fog(0x0b0c0e, 0, 80);
-
+        scene.fog = new THREE.Fog(0x0b0c0e, 0, 50);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.y = 1.7;
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        
+        renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         audio = new AudioSys();
         clock = new THREE.Clock();
+        particles = new ParticleSys(scene);
 
-        buildMap();
-        addWeapon();
+        // Mapa básico
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({map: TextureFactory.createWall()}));
+        floor.rotation.x = -Math.PI/2;
+        scene.add(floor);
+
+        const light = new THREE.PointLight(0xeebc51, 500);
+        light.position.set(0, 10, 0);
+        scene.add(light, new THREE.AmbientLight(0xffffff, 0.2));
+
+        // Spawn inicial de enemigos
+        for(let i=0; i<5; i++) {
+            enemies.push(new Enemy(scene, new THREE.Vector3(Math.random()*40-20, 1, Math.random()*40-20)));
+        }
+
         setupControls();
         animate();
     }
 
-    function buildMap() {
-        const concrete = TextureFactory.createConcrete();
-        const brick = TextureFactory.createBrick();
-        const crate = TextureFactory.createCrate();
-
-        // Ground
-        const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({map: concrete}));
-        ground.rotation.x = -Math.PI/2;
-        scene.add(ground);
-
-        // Lighting
-        const sun = new THREE.DirectionalLight(0xeebc51, 1);
-        sun.position.set(10, 20, 10);
-        scene.add(sun, new THREE.AmbientLight(0x404040, 0.5));
-
-        // Simplified Dust2 Geometry
-        const wallMat = new THREE.MeshStandardMaterial({map: brick});
-        const addWall = (w,h,d,x,y,z) => {
-            const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), wallMat);
-            m.position.set(x,y,z); scene.add(m);
+    function setupControls() {
+        window.startGame = () => {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('hud').style.display = 'block';
+            document.body.requestPointerLock();
         };
 
-        addWall(20, 5, 2, 0, 2.5, -15); // Long A Wall
-        addWall(2, 5, 30, 10, 2.5, 0);   // Mid Wall
+        document.addEventListener('keydown', (e) => { if(e.code.includes('Key')) move[e.code.replace('Key','').toLowerCase()] = true; });
+        document.addEventListener('keyup', (e) => { if(e.code.includes('Key')) move[e.code.replace('Key','').toLowerCase()] = false; });
         
-        // Crates
-        const crateMat = new THREE.MeshStandardMaterial({map: crate});
-        const c1 = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), crateMat);
-        c1.position.set(5, 1, -5); scene.add(c1);
-    }
-
-    function addWeapon() {
-        const gun = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 0.6), new THREE.MeshStandardMaterial({color: 0x111}));
-        gun.add(body);
-        gun.position.set(0.3, -0.3, -0.5);
-        camera.add(gun);
-        scene.add(camera);
-    }
-
-    function setupControls() {
-        document.addEventListener('keydown', (e) => {
-            if(e.code === 'KeyW') move.f = true;
-            if(e.code === 'KeyS') move.b = true;
-            if(e.code === 'KeyA') move.l = true;
-            if(e.code === 'KeyD') move.r = true;
-        });
-        document.addEventListener('keyup', (e) => {
-            if(e.code === 'KeyW') move.f = false;
-            if(e.code === 'KeyS') move.b = false;
-            if(e.code === 'KeyA') move.l = false;
-            if(e.code === 'KeyD') move.r = false;
-        });
         document.addEventListener('mousemove', (e) => {
             if(document.pointerLockElement) {
                 camera.rotation.y -= e.movementX * 0.002;
@@ -238,53 +227,59 @@
                 camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
             }
         });
+
         document.addEventListener('mousedown', () => {
-            if(document.pointerLockElement) {
-                audio.playAK();
-                camera.rotation.x += 0.02; // Recoil
+            if(!document.pointerLockElement) return;
+            
+            audio.playShot();
+            camera.rotation.x += 0.02; // Retroceso
+
+            // Lógica de Balas (Raycasting)
+            raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
+            const intersects = raycaster.intersectObjects(scene.children);
+
+            if(intersects.length > 0) {
+                const obj = intersects[0].object;
+                if(obj.userData.isEnemy) {
+                    const enemyIdx = enemies.findIndex(e => e.mesh === obj);
+                    if(enemyIdx > -1) {
+                        enemies[enemyIdx].takeDamage(35, particles);
+                        if(enemies[enemyIdx].health <= 0) enemies.splice(enemyIdx, 1);
+                    }
+                } else {
+                    particles.spawn(intersects[0].point, 0xeebc51, 3); // Chispas en paredes
+                }
             }
         });
     }
 
-    window.startGame = () => {
-        document.getElementById('menu').style.display = 'none';
-        document.getElementById('hud').style.display = 'block';
-        document.body.requestPointerLock();
-    };
-
     function animate() {
         requestAnimationFrame(animate);
         const delta = clock.getDelta();
-        
-        if(document.pointerLockElement) {
-            const speed = 150.0 * delta;
-            velocity.x -= velocity.x * 10.0 * delta;
-            velocity.z -= velocity.z * 10.0 * delta;
 
-            if(move.f) velocity.z -= speed;
-            if(move.b) velocity.z += speed;
-            if(move.l) velocity.x -= speed;
-            if(move.r) velocity.x += speed;
+        if(document.pointerLockElement) {
+            // Movimiento
+            const speed = 120 * delta;
+            velocity.x -= velocity.x * 10 * delta;
+            velocity.z -= velocity.z * 10 * delta;
+
+            if(move.w) velocity.z -= speed;
+            if(move.s) velocity.z += speed;
+            if(move.a) velocity.x -= speed;
+            if(move.d) velocity.x += speed;
 
             camera.translateX(velocity.x * delta);
             camera.translateZ(velocity.z * delta);
             camera.position.y = 1.7;
-            camera.rotation.x *= 0.9; // Recover recoil
+            camera.rotation.x *= 0.9; // Recuperación de retroceso
         }
+
+        // Actualizar Enemigos e Inteligencia Artificial
+        enemies.forEach(en => en.update(camera.position));
+        particles.update();
 
         renderer.render(scene, camera);
     }
-
-    // Loader Simulation
-    let p = 0;
-    const interval = setInterval(() => {
-        p += Math.random() * 15;
-        document.getElementById('progress-fill').style.width = Math.min(p, 100) + '%';
-        if(p >= 100) {
-            clearInterval(interval);
-            document.getElementById('uplink').style.display = 'none';
-        }
-    }, 150);
 
     init();
 </script>
