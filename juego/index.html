@@ -1,44 +1,292 @@
-SYSTEM ROLE: You are a Lead Graphics & Engine Developer.TASK: Reconstruct the "WEB-STRIKE: TITAN ELITE" prototype engine from scratch.OUTPUT FORMAT: Single HTML file. NO EXTERNAL ASSETS (Images/Audio/Models). Everything must be procedurally generated via code.
-TECHNICAL BLUEPRINT (STRICT ADHERENCE REQUIRED):
-1. VISUAL INTERFACE (CSS/DOM):
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WEB-STRIKE: TITAN ELITE | Prototype</title>
+    <style>
+        :root {
+            --primary: #eebc51;
+            --bg: #0b0c0e;
+            --hud-bg: rgba(10, 15, 20, 0.9);
+            --danger: #ff4444;
+        }
 
-Aesthetic: "High-Tech Military". Use CSS Variables: --primary: #eebc51, --bg: #0b0c0e, --hud-bg: rgba(10, 15, 20, 0.9).
-Post-Processing: Implement a CSS-based vignette (box-shadow inset) and a grain overlay using a base64 SVG noise filter.
-Loading Screen: Fake "Uplink" loader with a glowing progress bar.
-HUD: Skewed containers (transform: skewX(-5deg)). Components: Mini-map (Canvas), Killfeed (CSS Animation), Weapon Info, Health/Armor bars (Gradients).
-Menus: Radial gradient backgrounds with backdrop-filter blur. Include a "Server Browser" dummy UI.
-2. PROCEDURAL ASSET GENERATION (TextureFactory Class):
+        body, html { margin: 0; padding: 0; overflow: hidden; background: var(--bg); font-family: 'Courier New', monospace; color: white; }
 
-Texture Engine: Create a static class that generates THREE.CanvasTexture using the HTML5 Canvas API (2D Context).
-createConcrete: Grey background with random pixel noise.
-createBrick: Loop to draw offset rectangles (running bond pattern).
-createCrate: Brown fill with an "X" stroke and border.
-3. PROCEDURAL AUDIO ENGINE (AudioSys Class):
+        /* POST-PROCESSING */
+        #vignette {
+            position: fixed; inset: 0; pointer-events: none; z-index: 100;
+            box-shadow: inset 0 0 150px rgba(0,0,0,0.9);
+        }
+        #grain {
+            position: fixed; inset: 0; pointer-events: none; z-index: 101; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
 
-Requirement: Use AudioContext. NO <audio> tags.
-Noise Generator: Create a 2-second white noise buffer for gunshots/steps.
-Synthesizer Functions:
-AK47: Sawtooth oscillator + Lowpass filter sweep + Noise burst.
-AWP: Square wave (heavy distortion) + long decay.
-Hit: High-pitch Triangle wave ping.
-Bomb Plant: Sine wave frequency ramp up.
-4. GAME WORLD & PHYSICS (World Class):
+        /* LOADING */
+        #uplink {
+            position: fixed; inset: 0; z-index: 200; background: var(--bg);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .progress-bar { width: 300px; height: 4px; background: #222; border: 1px solid var(--primary); margin-top: 20px; }
+        #progress-fill { width: 0%; height: 100%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 
-Layout: "De_Dust2" Approximation.
-Hardcode specific map zones: CT Spawn, T Spawn, Long A, Tunnels, Site B.
-Use THREE.BoxGeometry for everything (Floor, Walls, Ramps).
-Navigation: Implement a custom Pathfinder class using A* (A-Star) logic. Manually define nodes (x, z) and connections (connect('CT', 'Mid')) for bot traversal.
-5. ENTITIES & AI (Player & Bot Classes):
+        /* HUD */
+        #hud { position: fixed; inset: 0; pointer-events: none; z-index: 50; display: none; }
+        .skew { transform: skewX(-5deg); background: var(--hud-bg); border-left: 4px solid var(--primary); padding: 10px 20px; position: absolute; }
+        
+        #health-armor { bottom: 20px; left: 20px; }
+        #weapon-info { bottom: 20px; right: 20px; text-align: right; }
+        #minimap { top: 20px; left: 20px; width: 150px; height: 150px; border: 2px solid var(--primary); }
+        
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+            transform: translate(-50%, -50%);
+        }
+        #crosshair::before, #crosshair::after { content: ''; position: absolute; background: var(--primary); opacity: 0.8; }
+        #crosshair::before { width: 2px; height: 100%; left: 9px; }
+        #crosshair::after { height: 2px; width: 100%; top: 9px; }
 
-Weapons: Create composite THREE.Group models using primitives (Box/Cylinder) for: AK47, AWP (with Scope), Glock, Knife.
-Bot Logic:
-State Machine: Pathing (A* movement) -> Combat (Raycast visibility check + Reaction timer).
-Bomb Logic: Terrorist bots must path to Site A/B to plant. CT bots must path to bomb to defuse.
-Stuck Check: If position hasn't changed in 0.5s, apply random jitter vector.
-6. GAMEPLAY LOOP:
+        /* MENU */
+        #menu {
+            position: fixed; inset: 0; z-index: 150; 
+            background: radial-gradient(circle, rgba(20,30,40,0.8) 0%, rgba(11,12,14,1) 100%);
+            backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .btn { 
+            border: 1px solid var(--primary); color: var(--primary); padding: 10px 40px; 
+            text-transform: uppercase; cursor: pointer; transition: 0.3s; margin: 10px;
+        }
+        .btn:hover { background: var(--primary); color: #000; }
+    </style>
+</head>
+<body>
 
-Combat: Raycasting from camera center. Recoil affects camera rotation (lerp back to center).
-Particles: ParticleSys class using THREE.Points and BufferGeometry. Types: Blood (red, high gravity), Sparks (yellow), Muzzle Flash.
-Game Rules: Round timer (2 mins). Win conditions: Elimination or Bomb Detonation/Defusal. Team Score tracking.
-EXECUTE:
-Generate the FULL, UNTRUNCATED source code (HTML/CSS/JS) now. Ensure the Three.js import uses the module URL https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js.
+<div id="vignette"></div>
+<div id="grain"></div>
+
+<div id="uplink">
+    <div style="letter-spacing: 5px; color: var(--primary)">ESTABLISHING UPLINK...</div>
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+</div>
+
+<div id="menu">
+    <h1 style="color: var(--primary); font-size: 3rem;">WEB-STRIKE</h1>
+    <div class="btn" onclick="startGame()">INITIALIZE COMBAT</div>
+    <div style="margin-top: 30px; opacity: 0.6; font-size: 0.8rem; border-top: 1px solid #333; padding: 20px;">
+        SERVER: TITAN-NODE-01 | PING: 14MS | REGION: EU-WEST
+    </div>
+</div>
+
+<div id="hud">
+    <canvas id="minimap"></canvas>
+    <div id="health-armor" class="skew">
+        <div style="font-size: 0.7rem; color: var(--primary)">HP / AP</div>
+        <span id="hp">100</span> | <span id="ap">100</span>
+    </div>
+    <div id="weapon-info" class="skew">
+        <div style="font-size: 0.7rem; color: var(--primary)">AK-47 // AUTO</div>
+        <span>30 / 90</span>
+    </div>
+    <div id="crosshair"></div>
+</div>
+
+<script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+    // --- 1. PROCEDURAL ASSET GENERATION ---
+    class TextureFactory {
+        static createConcrete() {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#444'; ctx.fillRect(0,0,256,256);
+            for(let i=0; i<2000; i++) {
+                ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.1})`;
+                ctx.fillRect(Math.random()*256, Math.random()*256, 1, 1);
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+        static createBrick() {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#6e3b2e'; ctx.fillRect(0,0,256,256);
+            ctx.strokeStyle = '#442211'; ctx.lineWidth = 4;
+            for(let y=0; y<256; y+=32) {
+                let off = (y%64===0)? 0 : 32;
+                for(let x=0; x<256; x+=64) ctx.strokeRect(x-off, y, 64, 32);
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+        static createCrate() {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#5d4037'; ctx.fillRect(0,0,256,256);
+            ctx.strokeStyle = '#3e2723'; ctx.lineWidth = 12;
+            ctx.strokeRect(10,10,236,236);
+            ctx.beginPath(); ctx.moveTo(10,10); ctx.lineTo(246,246);
+            ctx.moveTo(246,10); ctx.lineTo(10,246); ctx.stroke();
+            return new THREE.CanvasTexture(canvas);
+        }
+    }
+
+    // --- 2. PROCEDURAL AUDIO ---
+    class AudioSys {
+        constructor() {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        playAK() {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.1);
+            filter.type = 'lowpass'; filter.frequency.value = 1200;
+            gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+            osc.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+        }
+    }
+
+    // --- 3. GAME ENGINE CORE ---
+    let scene, camera, renderer, audio, clock, world;
+    const move = { f: false, b: false, l: false, r: false };
+    const velocity = new THREE.Vector3();
+
+    function init() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0b0c0e);
+        scene.fog = new THREE.Fog(0x0b0c0e, 0, 80);
+
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.y = 1.7;
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        audio = new AudioSys();
+        clock = new THREE.Clock();
+
+        buildMap();
+        addWeapon();
+        setupControls();
+        animate();
+    }
+
+    function buildMap() {
+        const concrete = TextureFactory.createConcrete();
+        const brick = TextureFactory.createBrick();
+        const crate = TextureFactory.createCrate();
+
+        // Ground
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({map: concrete}));
+        ground.rotation.x = -Math.PI/2;
+        scene.add(ground);
+
+        // Lighting
+        const sun = new THREE.DirectionalLight(0xeebc51, 1);
+        sun.position.set(10, 20, 10);
+        scene.add(sun, new THREE.AmbientLight(0x404040, 0.5));
+
+        // Simplified Dust2 Geometry
+        const wallMat = new THREE.MeshStandardMaterial({map: brick});
+        const addWall = (w,h,d,x,y,z) => {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), wallMat);
+            m.position.set(x,y,z); scene.add(m);
+        };
+
+        addWall(20, 5, 2, 0, 2.5, -15); // Long A Wall
+        addWall(2, 5, 30, 10, 2.5, 0);   // Mid Wall
+        
+        // Crates
+        const crateMat = new THREE.MeshStandardMaterial({map: crate});
+        const c1 = new THREE.Mesh(new THREE.BoxGeometry(2,2,2), crateMat);
+        c1.position.set(5, 1, -5); scene.add(c1);
+    }
+
+    function addWeapon() {
+        const gun = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 0.6), new THREE.MeshStandardMaterial({color: 0x111}));
+        gun.add(body);
+        gun.position.set(0.3, -0.3, -0.5);
+        camera.add(gun);
+        scene.add(camera);
+    }
+
+    function setupControls() {
+        document.addEventListener('keydown', (e) => {
+            if(e.code === 'KeyW') move.f = true;
+            if(e.code === 'KeyS') move.b = true;
+            if(e.code === 'KeyA') move.l = true;
+            if(e.code === 'KeyD') move.r = true;
+        });
+        document.addEventListener('keyup', (e) => {
+            if(e.code === 'KeyW') move.f = false;
+            if(e.code === 'KeyS') move.b = false;
+            if(e.code === 'KeyA') move.l = false;
+            if(e.code === 'KeyD') move.r = false;
+        });
+        document.addEventListener('mousemove', (e) => {
+            if(document.pointerLockElement) {
+                camera.rotation.y -= e.movementX * 0.002;
+                camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+            }
+        });
+        document.addEventListener('mousedown', () => {
+            if(document.pointerLockElement) {
+                audio.playAK();
+                camera.rotation.x += 0.02; // Recoil
+            }
+        });
+    }
+
+    window.startGame = () => {
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('hud').style.display = 'block';
+        document.body.requestPointerLock();
+    };
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        
+        if(document.pointerLockElement) {
+            const speed = 150.0 * delta;
+            velocity.x -= velocity.x * 10.0 * delta;
+            velocity.z -= velocity.z * 10.0 * delta;
+
+            if(move.f) velocity.z -= speed;
+            if(move.b) velocity.z += speed;
+            if(move.l) velocity.x -= speed;
+            if(move.r) velocity.x += speed;
+
+            camera.translateX(velocity.x * delta);
+            camera.translateZ(velocity.z * delta);
+            camera.position.y = 1.7;
+            camera.rotation.x *= 0.9; // Recover recoil
+        }
+
+        renderer.render(scene, camera);
+    }
+
+    // Loader Simulation
+    let p = 0;
+    const interval = setInterval(() => {
+        p += Math.random() * 15;
+        document.getElementById('progress-fill').style.width = Math.min(p, 100) + '%';
+        if(p >= 100) {
+            clearInterval(interval);
+            document.getElementById('uplink').style.display = 'none';
+        }
+    }, 150);
+
+    init();
+</script>
+</body>
+</html>
