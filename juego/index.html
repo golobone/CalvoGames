@@ -1,0 +1,44 @@
+SYSTEM ROLE: You are a Lead Graphics & Engine Developer.TASK: Reconstruct the "WEB-STRIKE: TITAN ELITE" prototype engine from scratch.OUTPUT FORMAT: Single HTML file. NO EXTERNAL ASSETS (Images/Audio/Models). Everything must be procedurally generated via code.
+TECHNICAL BLUEPRINT (STRICT ADHERENCE REQUIRED):
+1. VISUAL INTERFACE (CSS/DOM):
+
+Aesthetic: "High-Tech Military". Use CSS Variables: --primary: #eebc51, --bg: #0b0c0e, --hud-bg: rgba(10, 15, 20, 0.9).
+Post-Processing: Implement a CSS-based vignette (box-shadow inset) and a grain overlay using a base64 SVG noise filter.
+Loading Screen: Fake "Uplink" loader with a glowing progress bar.
+HUD: Skewed containers (transform: skewX(-5deg)). Components: Mini-map (Canvas), Killfeed (CSS Animation), Weapon Info, Health/Armor bars (Gradients).
+Menus: Radial gradient backgrounds with backdrop-filter blur. Include a "Server Browser" dummy UI.
+2. PROCEDURAL ASSET GENERATION (TextureFactory Class):
+
+Texture Engine: Create a static class that generates THREE.CanvasTexture using the HTML5 Canvas API (2D Context).
+createConcrete: Grey background with random pixel noise.
+createBrick: Loop to draw offset rectangles (running bond pattern).
+createCrate: Brown fill with an "X" stroke and border.
+3. PROCEDURAL AUDIO ENGINE (AudioSys Class):
+
+Requirement: Use AudioContext. NO <audio> tags.
+Noise Generator: Create a 2-second white noise buffer for gunshots/steps.
+Synthesizer Functions:
+AK47: Sawtooth oscillator + Lowpass filter sweep + Noise burst.
+AWP: Square wave (heavy distortion) + long decay.
+Hit: High-pitch Triangle wave ping.
+Bomb Plant: Sine wave frequency ramp up.
+4. GAME WORLD & PHYSICS (World Class):
+
+Layout: "De_Dust2" Approximation.
+Hardcode specific map zones: CT Spawn, T Spawn, Long A, Tunnels, Site B.
+Use THREE.BoxGeometry for everything (Floor, Walls, Ramps).
+Navigation: Implement a custom Pathfinder class using A* (A-Star) logic. Manually define nodes (x, z) and connections (connect('CT', 'Mid')) for bot traversal.
+5. ENTITIES & AI (Player & Bot Classes):
+
+Weapons: Create composite THREE.Group models using primitives (Box/Cylinder) for: AK47, AWP (with Scope), Glock, Knife.
+Bot Logic:
+State Machine: Pathing (A* movement) -> Combat (Raycast visibility check + Reaction timer).
+Bomb Logic: Terrorist bots must path to Site A/B to plant. CT bots must path to bomb to defuse.
+Stuck Check: If position hasn't changed in 0.5s, apply random jitter vector.
+6. GAMEPLAY LOOP:
+
+Combat: Raycasting from camera center. Recoil affects camera rotation (lerp back to center).
+Particles: ParticleSys class using THREE.Points and BufferGeometry. Types: Blood (red, high gravity), Sparks (yellow), Muzzle Flash.
+Game Rules: Round timer (2 mins). Win conditions: Elimination or Bomb Detonation/Defusal. Team Score tracking.
+EXECUTE:
+Generate the FULL, UNTRUNCATED source code (HTML/CSS/JS) now. Ensure the Three.js import uses the module URL https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js.
