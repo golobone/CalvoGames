@@ -2,253 +2,141 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>WEB-STRIKE: TITAN ELITE | Combat Engine</title>
+    <title>WEB-STRIKE: TITAN ELITE [FINAL]</title>
     <style>
-        :root {
-            --primary: #eebc51;
-            --bg: #0b0c0e;
-            --hud-bg: rgba(10, 15, 20, 0.9);
-            --danger: #ff4444;
-        }
-
+        :root { --primary: #eebc51; --bg: #0b0c0e; --hud-bg: rgba(10, 15, 20, 0.9); }
         body, html { margin: 0; padding: 0; overflow: hidden; background: var(--bg); font-family: 'Courier New', monospace; color: white; }
-
-        /* EFECTOS VISUALES */
         #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 100; box-shadow: inset 0 0 150px rgba(0,0,0,0.9); }
-        #grain { position: fixed; inset: 0; pointer-events: none; z-index: 101; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-
-        /* HUD */
         #hud { position: fixed; inset: 0; pointer-events: none; z-index: 50; display: none; }
-        .skew { transform: skewX(-5deg); background: var(--hud-bg); border-left: 4px solid var(--primary); padding: 10px 20px; position: absolute; }
-        #health-armor { bottom: 20px; left: 20px; }
+        .skew { transform: skewX(-10deg); background: var(--hud-bg); border-left: 4px solid var(--primary); padding: 10px 20px; position: absolute; }
+        #health-info { bottom: 20px; left: 20px; }
+        #score-info { top: 20px; left: 20px; }
         #weapon-info { bottom: 20px; right: 20px; text-align: right; }
-        #killfeed { top: 20px; right: 20px; text-align: right; }
-        .kill-msg { background: rgba(255,0,0,0.2); padding: 5px; margin-top: 5px; font-size: 0.8rem; border-right: 3px solid var(--danger); animation: slide 0.3s forwards; }
-        @keyframes slide { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        
         #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); }
         #crosshair::before, #crosshair::after { content: ''; position: absolute; background: var(--primary); }
         #crosshair::before { width: 2px; height: 100%; left: 9px; }
         #crosshair::after { height: 2px; width: 100%; top: 9px; }
-
-        /* MENÚ */
-        #menu { position: fixed; inset: 0; z-index: 150; background: radial-gradient(circle, #141e28 0%, #0b0c0e 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn { border: 1px solid var(--primary); color: var(--primary); padding: 15px 50px; cursor: pointer; transition: 0.3s; letter-spacing: 2px; }
-        .btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+        #menu { position: fixed; inset: 0; z-index: 150; background: radial-gradient(circle, #1a2533 0%, #0b0c0e 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn { border: 2px solid var(--primary); color: var(--primary); padding: 20px 60px; cursor: pointer; font-weight: bold; letter-spacing: 3px; }
+        .btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 30px var(--primary); }
     </style>
 </head>
 <body>
 
 <div id="vignette"></div>
-<div id="grain"></div>
-
 <div id="menu">
-    <h1 style="color: var(--primary); font-size: 3.5rem; margin-bottom: 0;">WEB-STRIKE</h1>
-    <p style="opacity: 0.5; margin-bottom: 40px;">PROTOCOLO TITAN ELITE v2.0</p>
-    <div class="btn" onclick="startGame()">DESPLEGAR EN ZONA CALIENTE</div>
+    <h1 style="color: var(--primary); font-size: 3.5rem; margin: 0;">WEB-STRIKE</h1>
+    <p style="letter-spacing: 5px; margin-bottom: 40px;">TITAN ELITE PROTOCOL</p>
+    <div class="btn" onclick="startGame()">DESPLEGAR</div>
 </div>
 
 <div id="hud">
-    <div id="killfeed"></div>
-    <div id="health-armor" class="skew">
-        <div style="font-size: 0.7rem; color: var(--primary)">ESTADO DEL OPERADOR</div>
-        <span id="hp-display">100</span> HP | <span id="ap-display">100</span> AP
-    </div>
-    <div id="weapon-info" class="skew">
-        <div style="font-size: 0.7rem; color: var(--primary)">AK-47 // MUNICIÓN</div>
-        <span id="ammo-display">30 / 90</span>
-    </div>
+    <div id="score-info" class="skew">BAJAS: <span id="kill-count">0</span></div>
+    <div id="health-info" class="skew">VITALIDAD: <span id="hp-display">100</span>%</div>
+    <div id="weapon-info" class="skew">MODELO: AK-47 v2<br>MUNICIÓN: ILIMITADA</div>
     <div id="crosshair"></div>
 </div>
 
 <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-    // --- 1. GENERADOR DE TEXTURAS ---
-    class TextureFactory {
-        static createEnemyTex() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 64; canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#1a1a1a'; ctx.fillRect(0,0,64,64);
-            ctx.strokeStyle = '#ff4444'; ctx.lineWidth = 4;
-            ctx.strokeRect(5,5,54,54);
-            return new THREE.CanvasTexture(canvas);
-        }
-        static createWall() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 256;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#333'; ctx.fillRect(0,0,256,256);
-            ctx.strokeStyle = '#222';
-            for(let i=0; i<256; i+=32) {
-                ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(256,i); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,256); ctx.stroke();
-            }
-            return new THREE.CanvasTexture(canvas);
+    // --- AUDIO & TEXTURAS ---
+    class Engine {
+        static ctx = new (window.AudioContext || window.webkitAudioContext)();
+        static play(f, t, d) {
+            const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+            o.type = t; o.frequency.setValueAtTime(f, this.ctx.currentTime);
+            g.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + d);
+            o.connect(g); g.connect(this.ctx.destination);
+            o.start(); o.stop(this.ctx.currentTime + d);
         }
     }
 
-    // --- 2. SISTEMA DE AUDIO ---
-    class AudioSys {
-        constructor() { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
-        playShot() {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.1);
-            osc.connect(gain); gain.connect(this.ctx.destination);
-            osc.start(); osc.stop(this.ctx.currentTime + 0.1);
-        }
-    }
-
-    // --- 3. LÓGICA DE PARTÍCULAS ---
-    class ParticleSys {
-        constructor(scene) {
-            this.scene = scene;
-            this.particles = [];
-        }
-        spawn(pos, color, count = 5) {
-            for(let i=0; i<count; i++) {
-                const geo = new THREE.BoxGeometry(0.05, 0.05, 0.05);
-                const mat = new THREE.MeshBasicMaterial({color: color});
-                const p = new THREE.Mesh(geo, mat);
-                p.position.copy(pos);
-                p.userData.velocity = new THREE.Vector3((Math.random()-0.5)*0.1, Math.random()*0.1, (Math.random()-0.5)*0.1);
-                p.userData.life = 1.0;
-                this.scene.add(p);
-                this.particles.push(p);
-            }
-        }
-        update() {
-            for(let i=this.particles.length-1; i>=0; i--) {
-                const p = this.particles[i];
-                p.position.add(p.userData.velocity);
-                p.userData.life -= 0.02;
-                p.scale.setScalar(p.userData.life);
-                if(p.userData.life <= 0) {
-                    this.scene.remove(p);
-                    this.particles.splice(i, 1);
-                }
-            }
-        }
-    }
-
-    // --- 4. CLASE ENEMIGO ---
-    class Enemy {
-        constructor(scene, pos) {
-            const geo = new THREE.BoxGeometry(1, 2, 1);
-            const mat = new THREE.MeshStandardMaterial({map: TextureFactory.createEnemyTex(), color: 0xff0000});
-            this.mesh = new THREE.Mesh(geo, mat);
-            this.mesh.position.copy(pos);
-            this.mesh.userData.isEnemy = true;
-            this.health = 100;
-            this.scene = scene;
-            scene.add(this.mesh);
-        }
-        update(playerPos) {
-            const dir = new THREE.Vector3().subVectors(playerPos, this.mesh.position).normalize();
-            dir.y = 0;
-            this.mesh.position.add(dir.multiplyScalar(0.03));
-            this.mesh.lookAt(playerPos.x, 1, playerPos.z);
-        }
-        takeDamage(amt, particleSys) {
-            this.health -= amt;
-            particleSys.spawn(this.mesh.position, 0xff0000, 10);
-            if(this.health <= 0) this.die();
-        }
-        die() {
-            this.scene.remove(this.mesh);
-            const feed = document.getElementById('killfeed');
-            const msg = document.createElement('div');
-            msg.className = 'kill-msg';
-            msg.innerText = "OPERADOR > ELIMINADO > HOSTIL_UNIT";
-            feed.appendChild(msg);
-            setTimeout(() => msg.remove(), 3000);
-            return true;
-        }
-    }
-
-    // --- 5. MOTOR PRINCIPAL ---
-    let scene, camera, renderer, audio, clock, particles;
-    let enemies = [];
-    const move = { f: false, b: false, l: false, r: false };
+    let scene, camera, renderer, clock, raycaster;
+    let playerHP = 100, kills = 0, gunGroup;
+    let enemies = [], obstacles = [], medkits = [];
+    const move = { w: false, s: false, a: false, d: false };
     const velocity = new THREE.Vector3();
-    const raycaster = new THREE.Raycaster();
 
     function init() {
         scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x0b0c0e, 0, 50);
+        scene.fog = new THREE.Fog(0x0b0c0e, 0, 70);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        audio = new AudioSys();
         clock = new THREE.Clock();
-        particles = new ParticleSys(scene);
+        raycaster = new THREE.Raycaster();
 
-        // Mapa básico
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({map: TextureFactory.createWall()}));
+        // Escenario
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshStandardMaterial({color: 0x151515}));
         floor.rotation.x = -Math.PI/2;
         scene.add(floor);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const sun = new THREE.PointLight(0xeebc51, 150); sun.position.set(0,15,0); scene.add(sun);
 
-        const light = new THREE.PointLight(0xeebc51, 500);
-        light.position.set(0, 10, 0);
-        scene.add(light, new THREE.AmbientLight(0xffffff, 0.2));
-
-        // Spawn inicial de enemigos
-        for(let i=0; i<5; i++) {
-            enemies.push(new Enemy(scene, new THREE.Vector3(Math.random()*40-20, 1, Math.random()*40-20)));
+        // Crear Muros y Cajas
+        for(let i=0; i<15; i++) {
+            const h = Math.random() * 4 + 2;
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(4, h, 4), new THREE.MeshStandardMaterial({color: 0x333333}));
+            wall.position.set((Math.random()-0.5)*60, h/2, (Math.random()-0.5)*60);
+            scene.add(wall);
+            obstacles.push(wall);
         }
 
+        buildGun();
         setupControls();
+        setInterval(spawnEnemy, 2500);
         animate();
     }
 
-    function setupControls() {
-        window.startGame = () => {
-            document.getElementById('menu').style.display = 'none';
-            document.getElementById('hud').style.display = 'block';
-            document.body.requestPointerLock();
-        };
+    function buildGun() {
+        gunGroup = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.8), new THREE.MeshStandardMaterial({color: 0x222}));
+        const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.6), new THREE.MeshStandardMaterial({color: 0x111}));
+        barrel.rotation.x = Math.PI/2; barrel.position.z = -0.5;
+        const grip = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.3, 0.15), new THREE.MeshStandardMaterial({color: 0x3d2b1f}));
+        grip.position.set(0, -0.2, -0.1);
+        gunGroup.add(body, barrel, grip);
+        gunGroup.position.set(0.4, -0.4, -0.6);
+        camera.add(gunGroup);
+        scene.add(camera);
+    }
 
-        document.addEventListener('keydown', (e) => { if(e.code.includes('Key')) move[e.code.replace('Key','').toLowerCase()] = true; });
-        document.addEventListener('keyup', (e) => { if(e.code.includes('Key')) move[e.code.replace('Key','').toLowerCase()] = false; });
-        
+    function spawnEnemy() {
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 1.2), new THREE.MeshStandardMaterial({color: 0xff3333, emissive: 0xff0000, emissiveIntensity: 0.2}));
+        const a = Math.random() * Math.PI * 2;
+        mesh.position.set(Math.cos(a)*40, 1.1, Math.sin(a)*40);
+        mesh.userData = { isEnemy: true };
+        scene.add(mesh);
+        enemies.push(mesh);
+    }
+
+    function setupControls() {
+        window.startGame = () => { document.getElementById('menu').style.display='none'; document.getElementById('hud').style.display='block'; document.body.requestPointerLock(); };
+        document.addEventListener('keydown', (e) => move[e.key.toLowerCase()] = true);
+        document.addEventListener('keyup', (e) => move[e.key.toLowerCase()] = false);
         document.addEventListener('mousemove', (e) => {
             if(document.pointerLockElement) {
                 camera.rotation.y -= e.movementX * 0.002;
-                camera.rotation.x -= e.movementY * 0.002;
-                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+                camera.rotation.x = Math.max(-1.4, Math.min(1.4, camera.rotation.x - e.movementY * 0.002));
             }
         });
-
         document.addEventListener('mousedown', () => {
             if(!document.pointerLockElement) return;
+            Engine.play(180, 'sawtooth', 0.1);
+            gunGroup.position.z += 0.1; // Kickback
             
-            audio.playShot();
-            camera.rotation.x += 0.02; // Retroceso
-
-            // Lógica de Balas (Raycasting)
             raycaster.setFromCamera(new THREE.Vector2(0,0), camera);
-            const intersects = raycaster.intersectObjects(scene.children);
-
-            if(intersects.length > 0) {
-                const obj = intersects[0].object;
-                if(obj.userData.isEnemy) {
-                    const enemyIdx = enemies.findIndex(e => e.mesh === obj);
-                    if(enemyIdx > -1) {
-                        enemies[enemyIdx].takeDamage(35, particles);
-                        if(enemies[enemyIdx].health <= 0) enemies.splice(enemyIdx, 1);
-                    }
-                } else {
-                    particles.spawn(intersects[0].point, 0xeebc51, 3); // Chispas en paredes
-                }
+            const hits = raycaster.intersectObjects(scene.children);
+            if(hits.length > 0 && hits[0].object.userData.isEnemy) {
+                scene.remove(hits[0].object);
+                enemies = enemies.filter(e => e !== hits[0].object);
+                kills++; document.getElementById('kill-count').innerText = kills;
+                Engine.play(80, 'square', 0.2);
             }
         });
     }
@@ -256,31 +144,35 @@
     function animate() {
         requestAnimationFrame(animate);
         const delta = clock.getDelta();
+        if(!document.pointerLockElement) return;
 
-        if(document.pointerLockElement) {
-            // Movimiento
-            const speed = 120 * delta;
-            velocity.x -= velocity.x * 10 * delta;
-            velocity.z -= velocity.z * 10 * delta;
+        // Movimiento e inercia del arma
+        velocity.set(0,0,0);
+        if(move.w) velocity.z -= 12 * delta; if(move.s) velocity.z += 12 * delta;
+        if(move.a) velocity.x -= 12 * delta; if(move.d) velocity.x += 12 * delta;
+        camera.translateX(velocity.x); camera.translateZ(velocity.z);
+        camera.position.y = 1.7;
 
-            if(move.w) velocity.z -= speed;
-            if(move.s) velocity.z += speed;
-            if(move.a) velocity.x -= speed;
-            if(move.d) velocity.x += speed;
+        // Balanceo y retroceso del arma
+        gunGroup.position.z = THREE.MathUtils.lerp(gunGroup.position.z, -0.6, 0.1);
+        gunGroup.position.y = -0.4 + Math.sin(Date.now() * 0.005) * 0.01;
 
-            camera.translateX(velocity.x * delta);
-            camera.translateZ(velocity.z * delta);
-            camera.position.y = 1.7;
-            camera.rotation.x *= 0.9; // Recuperación de retroceso
-        }
+        // IA Enemiga
+        enemies.forEach(en => {
+            const dir = new THREE.Vector3().subVectors(camera.position, en.position).normalize();
+            en.position.add(new THREE.Vector3(dir.x, 0, dir.z).multiplyScalar(4 * delta));
+            en.lookAt(camera.position.x, 1.1, camera.position.z);
+            if(en.position.distanceTo(camera.position) < 1.8) {
+                playerHP -= 0.3;
+                document.getElementById('vignette').style.boxShadow = "inset 0 0 150px rgba(255,0,0,0.7)";
+                setTimeout(() => document.getElementById('vignette').style.boxShadow = "inset 0 0 150px rgba(0,0,0,0.9)", 50);
+            }
+        });
 
-        // Actualizar Enemigos e Inteligencia Artificial
-        enemies.forEach(en => en.update(camera.position));
-        particles.update();
-
+        if(playerHP <= 0) { alert("OPERACIÓN FALLIDA. BAJAS: " + kills); location.reload(); }
+        document.getElementById('hp-display').innerText = Math.floor(playerHP);
         renderer.render(scene, camera);
     }
-
     init();
 </script>
 </body>
