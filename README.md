@@ -17,7 +17,6 @@ Proyecto desarrollado con la ayuda de:
 * **Cuentas y Login**: Todo gestionado con Firebase.
 * **Sistema de Rangos**: Roles de Owner, Admin y Usuario normal.
 * **Panel de Control**: Para gestionar a la gente y los permisos.
-* **Perfiles**: Cada usuario puede editar su nombre y cuenta.
 
 ## 📂 Estructura
 * `/admin`: Gestión de comunidad.
