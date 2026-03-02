@@ -4,161 +4,215 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GDScript Template — Godot 4</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap">
 
+<style>
   :root {
-    --bg: #0d0f14;
-    --surface: #13161f;
-    --surface2: #1a1e2a;
-    --border: #252836;
-    --accent: #4fffb0;
-    --accent2: #7b61ff;
-    --accent3: #ff6b6b;
-    --accent4: #ffd93d;
-    --text: #e2e8f0;
-    --muted: #64748b;
-    --kw: #7b61ff;
-    --fn: #4fffb0;
-    --str: #ffd93d;
-    --num: #ff9f7f;
-    --comment: #475569;
-    --type: #60a5fa;
+    --bg:         #0a081b;
+    --surface:    rgba(10, 8, 27, 0.82);
+    --surface2:   rgba(22, 18, 50, 0.75);
+    --border:     rgba(230, 230, 230, 0.14);
+    --border-h:   rgba(22, 255, 187, 0.35);
+    --accent:     #16FFBB;
+    --accent-dim: #00e2a0;
+    --accent2:    #a78bfa;
+    --accent3:    #fb7185;
+    --accent4:    #fbbf24;
+    --text:       #e0e4e6;
+    --heading:    #F0FCFF;
+    --muted:      rgba(224,228,230,0.5);
+    --kw:   #a78bfa;
+    --fn:   #16FFBB;
+    --str:  #fbbf24;
+    --num:  #fb923c;
+    --cm:   rgba(224,228,230,0.3);
+    --tp:   #7dd3fc;
+    --sig:  #fb7185;
+    --dec:  #fbbf24;
+    --radius: 1.25rem;
+    --radius-sm: 0.6rem;
+    --radius-btn: 8rem;
+    --font-heading: 'Spline Sans', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --t: 200ms ease;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
 
   body {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-body);
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
-    padding: 0 0 60px;
+    padding-bottom: 80px;
+    position: relative;
+    overflow-x: hidden;
   }
 
+  /* ── FONDO GRADIENTE (igual que CalvoGames) ── */
+  .site-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: url('https://assets.codioful.com/themes/multi-gradient-mesh-by-codioful/9.webp');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.28;
+    pointer-events: none;
+  }
+  .site-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(22,255,187,0.06) 0%, transparent 70%);
+  }
+
+  /* ── HEADER ── */
   header {
-    background: linear-gradient(135deg, #0d0f14 0%, #13161f 50%, #0d1117 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 32px 40px 28px;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 200;
+    background: rgba(10, 8, 27, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 40px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
   }
 
   .logo {
-    width: 36px;
-    height: 36px;
+    width: 36px; height: 36px;
     background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+    box-shadow: 0 0 18px rgba(22,255,187,0.25);
   }
 
   header h1 {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    font-family: var(--font-heading);
+    font-size: 20px; font-weight: 700; letter-spacing: -0.3px;
+    color: var(--heading);
   }
-
   header h1 span { color: var(--accent); }
 
-  .badge {
+  .header-badge {
     margin-left: auto;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 11px;
-    padding: 4px 10px;
+    background: rgba(22,255,187,0.07);
+    border: 1px solid rgba(22,255,187,0.2);
+    color: var(--accent);
+    font-size: 11px; padding: 4px 12px;
     border-radius: 20px;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     letter-spacing: 0.5px;
+    font-weight: 700;
   }
 
+  /* ── TABS ── */
   .tabs {
+    position: sticky;
+    top: 69px;
+    z-index: 190;
     display: flex;
-    gap: 0;
-    padding: 24px 40px 0;
+    padding: 0 40px;
+    background: rgba(10, 8, 27, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     overflow-x: auto;
+    gap: 0;
+    scrollbar-width: none;
   }
+  .tabs::-webkit-scrollbar { display: none; }
 
   .tab {
-    padding: 10px 20px;
+    padding: 13px 20px;
     cursor: pointer;
     color: var(--muted);
-    font-size: 13px;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: 13px; font-weight: 600;
+    border: none; background: none;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
+    transition: color var(--t), border-color var(--t);
+    letter-spacing: 0.2px;
   }
-
   .tab:hover { color: var(--text); }
-  .tab.active { color: var(--accent); border-color: var(--accent); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
+  /* ── CONTENIDO ── */
   .content {
-    padding: 32px 40px;
-    max-width: 1100px;
+    position: relative;
+    z-index: 1;
+    padding: 36px 40px;
+    max-width: 1140px;
   }
 
   .panel { display: none; }
   .panel.active { display: block; }
 
+  /* ── SECTION TITLE ── */
   .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-family: var(--font-mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 16px;
-    padding-bottom: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
   }
 
+  /* ── GRID DE CARDS ── */
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 16px;
-    margin-bottom: 32px;
+    margin-bottom: 36px;
   }
 
+  /* ── CARD (estilo CalvoGames + toque dev) ── */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius);
     overflow: hidden;
-    transition: border-color 0.2s;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: border-color var(--t), box-shadow var(--t), transform var(--t);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
   }
-
-  .card:hover { border-color: var(--accent2); }
+  .card:hover {
+    border-color: var(--border-h);
+    box-shadow: 0 8px 36px rgba(22,255,187,0.1);
+    transform: translateY(-2px);
+  }
 
   .card-header {
     padding: 10px 16px;
     background: var(--surface2);
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     border-bottom: 1px solid var(--border);
   }
 
   .card-dot {
     width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+    border-radius: 50%; flex-shrink: 0;
   }
 
   .card-title {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-family: var(--font-mono);
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.8px;
     color: var(--text);
+    text-transform: uppercase;
   }
 
   .copy-btn {
@@ -166,150 +220,177 @@
     background: none;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-size: 10px;
-    padding: 3px 8px;
+    font-size: 10px; padding: 3px 10px;
     border-radius: 4px;
     cursor: pointer;
-    font-family: 'JetBrains Mono', monospace;
-    transition: all 0.2s;
+    font-family: var(--font-mono);
+    transition: border-color var(--t), color var(--t);
   }
-
   .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
   .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
 
   pre {
-    padding: 14px 16px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px;
-    line-height: 1.7;
+    padding: 16px 18px;
+    font-family: var(--font-mono);
+    font-size: 12.5px; line-height: 1.75;
     overflow-x: auto;
     white-space: pre;
   }
 
-  .kw { color: var(--kw); font-weight: 700; }
-  .fn { color: var(--fn); }
+  /* Sintaxis */
+  .kw  { color: var(--kw);  font-weight: 700; }
+  .fn  { color: var(--fn);  }
   .str { color: var(--str); }
   .num { color: var(--num); }
-  .cm { color: var(--comment); font-style: italic; }
-  .tp { color: var(--type); }
-  .sig { color: var(--accent3); }
-  .dec { color: var(--accent4); }
+  .cm  { color: var(--cm);  font-style: italic; }
+  .tp  { color: var(--tp);  }
+  .sig { color: var(--sig); }
+  .dec { color: var(--dec); }
 
+  /* ── BIG BLOCK (template completo) ── */
   .big-block {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: var(--radius);
     overflow: hidden;
     margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
   }
-
   .big-block-header {
     padding: 12px 20px;
     background: var(--surface2);
     border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
   }
-
   .big-block-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px; font-weight: 700;
+    color: var(--heading);
   }
+  .big-block pre { padding: 22px; font-size: 13px; }
 
-  .big-block pre { padding: 20px; font-size: 13px; }
-
+  /* ── TIP ── */
   .tip {
-    background: linear-gradient(135deg, rgba(123,97,255,0.08), rgba(79,255,176,0.05));
-    border: 1px solid rgba(123,97,255,0.25);
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    font-size: 13px;
+    background: linear-gradient(135deg, rgba(167,139,250,0.07), rgba(22,255,187,0.05));
+    border: 1px solid rgba(22,255,187,0.18);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 13.5px;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.65;
+  }
+  .tip strong { color: var(--accent2); }
+  .tip code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(22,255,187,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
   }
 
-  .tip strong { color: var(--accent2); }
-
+  /* ── NAMING TABLE ── */
   .naming-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12.5px;
     margin-bottom: 24px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   }
-
   .naming-table th {
-    text-align: left;
-    padding: 10px 16px;
+    text-align: left; padding: 11px 18px;
     background: var(--surface2);
     color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 1px;
+    font-size: 10px; letter-spacing: 1.5px;
     text-transform: uppercase;
     border-bottom: 1px solid var(--border);
   }
-
   .naming-table td {
-    padding: 10px 16px;
+    padding: 11px 18px;
     border-bottom: 1px solid var(--border);
-    vertical-align: top;
-    line-height: 1.6;
+    vertical-align: top; line-height: 1.6;
+    color: var(--text);
   }
-
   .naming-table tr:last-child td { border-bottom: none; }
-  .naming-table tr:hover td { background: var(--surface2); }
+  .naming-table tr:hover td { background: rgba(22,255,187,0.03); }
 
+  /* ── TAGS ── */
   .tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-right: 4px;
+    display: inline-block; padding: 2px 9px;
+    border-radius: 4px; font-size: 10px; font-weight: 700;
+    margin-right: 4px; font-family: var(--font-mono);
   }
+  .tag-green  { background: rgba(22,255,187,0.1);  color: var(--accent);  border: 1px solid rgba(22,255,187,0.25); }
+  .tag-purple { background: rgba(167,139,250,0.1); color: var(--accent2); border: 1px solid rgba(167,139,250,0.25); }
+  .tag-red    { background: rgba(251,113,133,0.1); color: var(--accent3); border: 1px solid rgba(251,113,133,0.25); }
+  .tag-yellow { background: rgba(251,191,36,0.1);  color: var(--accent4); border: 1px solid rgba(251,191,36,0.25); }
 
-  .tag-green { background: rgba(79,255,176,0.1); color: var(--accent); }
-  .tag-purple { background: rgba(123,97,255,0.1); color: var(--accent2); }
-  .tag-red { background: rgba(255,107,107,0.1); color: var(--accent3); }
-  .tag-yellow { background: rgba(255,217,61,0.1); color: var(--accent4); }
+  /* ── AVISO ── */
+  .av-notice {
+    background: rgba(22,255,187,0.05);
+    border: 1px solid rgba(22,255,187,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px; color: var(--muted); line-height: 1.6;
+    margin-top: 8px;
+  }
+  .av-notice strong { color: var(--accent); }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { background: rgba(22,255,187,0.2); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    header { padding: 14px 20px; }
+    .tabs  { padding: 0 20px; }
+    .content { padding: 24px 20px; }
+    .grid { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
+<div class="site-bg" aria-hidden="true"></div>
+
+<!-- HEADER -->
 <header>
-  <div class="logo">🎮</div>
+  <div class="logo" aria-hidden="true">🎮</div>
   <h1>GDScript <span>Template</span></h1>
-  <span class="badge">Godot 4.x</span>
+  <span class="header-badge">Godot 4.x</span>
 </header>
 
-<div class="tabs">
-  <div class="tab active" onclick="showPanel('variables')">Variables</div>
-  <div class="tab" onclick="showPanel('funciones')">Funciones</div>
-  <div class="tab" onclick="showPanel('senales')">Señales</div>
-  <div class="tab" onclick="showPanel('control')">Control</div>
-  <div class="tab" onclick="showPanel('nombres')">Nombres</div>
-  <div class="tab" onclick="showPanel('template')">Template Completo</div>
-</div>
+<!-- TABS -->
+<nav class="tabs" role="tablist" aria-label="Secciones del template">
+  <button class="tab active" role="tab" aria-selected="true"  onclick="showPanel('variables', this)">Variables</button>
+  <button class="tab"        role="tab" aria-selected="false" onclick="showPanel('funciones', this)">Funciones</button>
+  <button class="tab"        role="tab" aria-selected="false" onclick="showPanel('senales', this)">Señales</button>
+  <button class="tab"        role="tab" aria-selected="false" onclick="showPanel('control', this)">Control</button>
+  <button class="tab"        role="tab" aria-selected="false" onclick="showPanel('nombres', this)">Nombres</button>
+  <button class="tab"        role="tab" aria-selected="false" onclick="showPanel('template', this)">Template Completo</button>
+</nav>
 
 <div class="content">
 
-  <!-- VARIABLES -->
-  <div class="panel active" id="panel-variables">
+  <!-- ══ VARIABLES ══ -->
+  <div class="panel active" id="panel-variables" role="tabpanel">
     <p class="section-title">Declaración de Variables</p>
     <div class="grid">
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#7b61ff"></div>
+          <div class="card-dot" style="background:var(--accent2)"></div>
           <span class="card-title">CONSTANTES</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">const</span> <span class="fn">VELOCIDAD_MAX</span>: <span class="tp">float</span> = <span class="num">300.0</span>
 <span class="kw">const</span> <span class="fn">VIDA_MAX</span>: <span class="tp">int</span> = <span class="num">100</span>
@@ -319,9 +400,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#4fffb0"></div>
+          <div class="card-dot" style="background:var(--accent)"></div>
           <span class="card-title">@EXPORT (Inspector)</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="dec">@export</span> <span class="kw">var</span> velocidad: <span class="tp">float</span> = <span class="num">200.0</span>
 <span class="dec">@export</span> <span class="kw">var</span> vida: <span class="tp">int</span> = <span class="num">100</span>
@@ -332,9 +413,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ffd93d"></div>
+          <div class="card-dot" style="background:var(--accent4)"></div>
           <span class="card-title">@ONREADY (Nodos hijos)</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="dec">@onready</span> <span class="kw">var</span> sprite: <span class="tp">Sprite2D</span> = $Sprite2D
 <span class="dec">@onready</span> <span class="kw">var</span> animacion: <span class="tp">AnimationPlayer</span> = $AnimationPlayer
@@ -345,9 +426,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ff6b6b"></div>
+          <div class="card-dot" style="background:var(--accent3)"></div>
           <span class="card-title">TIPOS DE DATOS</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">var</span> numero_entero: <span class="tp">int</span> = <span class="num">42</span>
 <span class="kw">var</span> numero_decimal: <span class="tp">float</span> = <span class="num">3.14</span>
@@ -360,9 +441,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#60a5fa"></div>
+          <div class="card-dot" style="background:var(--tp)"></div>
           <span class="card-title">ENUMS (Estados)</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">enum</span> <span class="tp">Estado</span> {
     IDLE, CORRIENDO, SALTANDO,
@@ -379,7 +460,7 @@
         <div class="card-header">
           <div class="card-dot" style="background:#94a3b8"></div>
           <span class="card-title">VARIABLES PRIVADAS</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="cm"># Prefijo _ = uso interno</span>
 <span class="kw">var</span> _esta_muerto: <span class="tp">bool</span> = <span class="kw">false</span>
@@ -391,16 +472,16 @@
     </div>
   </div>
 
-  <!-- FUNCIONES -->
-  <div class="panel" id="panel-funciones">
+  <!-- ══ FUNCIONES ══ -->
+  <div class="panel" id="panel-funciones" role="tabpanel">
     <p class="section-title">Funciones del Ciclo de Vida y Personalizadas</p>
-
     <div class="grid">
+
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#4fffb0"></div>
+          <div class="card-dot" style="background:var(--accent)"></div>
           <span class="card-title">CICLO DE VIDA</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">func</span> <span class="fn">_ready</span>() -> <span class="tp">void</span>:
     <span class="cm"># Una vez al entrar a la escena</span>
@@ -421,9 +502,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#7b61ff"></div>
+          <div class="card-dot" style="background:var(--accent2)"></div>
           <span class="card-title">FUNCIONES TÍPICAS</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">func</span> <span class="fn">recibir_daño</span>(cantidad: <span class="tp">int</span>) -> <span class="tp">void</span>:
     vida -= cantidad
@@ -442,9 +523,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ffd93d"></div>
+          <div class="card-dot" style="background:var(--accent4)"></div>
           <span class="card-title">MOVIMIENTO CharacterBody2D</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">func</span> <span class="fn">_physics_process</span>(delta: <span class="tp">float</span>) -> <span class="tp">void</span>:
     <span class="cm"># Agregar gravedad</span>
@@ -461,9 +542,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ff6b6b"></div>
+          <div class="card-dot" style="background:var(--accent3)"></div>
           <span class="card-title">SEÑALES CONECTADAS</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="cm"># Patrón: _on_NombreNodo_señal</span>
 
@@ -478,18 +559,20 @@
 <span class="kw">func</span> <span class="fn">_on_boton_pressed</span>() -> <span class="tp">void</span>:
     pass</pre>
       </div>
+
     </div>
   </div>
 
-  <!-- SEÑALES -->
-  <div class="panel" id="panel-senales">
+  <!-- ══ SEÑALES ══ -->
+  <div class="panel" id="panel-senales" role="tabpanel">
     <p class="section-title">Sistema de Señales</p>
     <div class="grid">
+
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ff6b6b"></div>
+          <div class="card-dot" style="background:var(--accent3)"></div>
           <span class="card-title">DECLARAR SEÑALES</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">signal</span> <span class="sig">vida_cambiada</span>(vida_nueva: <span class="tp">int</span>)
 <span class="kw">signal</span> <span class="sig">personaje_muerto</span>()
@@ -499,9 +582,9 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ff6b6b"></div>
+          <div class="card-dot" style="background:var(--accent3)"></div>
           <span class="card-title">EMITIR SEÑALES</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="cm"># Emitir desde el mismo script</span>
 vida_cambiada.<span class="fn">emit</span>(vida)
@@ -512,9 +595,9 @@ nivel_completado.<span class="fn">emit</span>(<span class="num">1500</span>)</pr
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ff6b6b"></div>
+          <div class="card-dot" style="background:var(--accent3)"></div>
           <span class="card-title">CONECTAR SEÑALES (código)</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">func</span> <span class="fn">_ready</span>() -> <span class="tp">void</span>:
     <span class="cm"># Conectar señal de otro nodo</span>
@@ -526,18 +609,20 @@ nivel_completado.<span class="fn">emit</span>(<span class="num">1500</span>)</pr
 <span class="kw">func</span> <span class="fn">_on_vida_cambiada</span>(v: <span class="tp">int</span>) -> <span class="tp">void</span>:
     $BarraVida.value = v</pre>
       </div>
+
     </div>
   </div>
 
-  <!-- CONTROL DE FLUJO -->
-  <div class="panel" id="panel-control">
+  <!-- ══ CONTROL ══ -->
+  <div class="panel" id="panel-control" role="tabpanel">
     <p class="section-title">Control de Flujo</p>
     <div class="grid">
+
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#4fffb0"></div>
+          <div class="card-dot" style="background:var(--accent)"></div>
           <span class="card-title">IF / ELIF / ELSE</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">if</span> vida <= <span class="num">0</span>:
     _morir()
@@ -553,9 +638,9 @@ nivel_completado.<span class="fn">emit</span>(<span class="num">1500</span>)</pr
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#7b61ff"></div>
+          <div class="card-dot" style="background:var(--accent2)"></div>
           <span class="card-title">MATCH (switch)</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="kw">match</span> estado_actual:
     Estado.IDLE:
@@ -571,9 +656,9 @@ nivel_completado.<span class="fn">emit</span>(<span class="num">1500</span>)</pr
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#ffd93d"></div>
+          <div class="card-dot" style="background:var(--accent4)"></div>
           <span class="card-title">FOR / WHILE</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="cm"># For con rango</span>
 <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>):
@@ -591,9 +676,9 @@ nivel_completado.<span class="fn">emit</span>(<span class="num">1500</span>)</pr
 
       <div class="card">
         <div class="card-header">
-          <div class="card-dot" style="background:#60a5fa"></div>
+          <div class="card-dot" style="background:var(--tp)"></div>
           <span class="card-title">GRUPOS Y NODOS</span>
-          <button class="copy-btn" onclick="copyCode(this)">copiar</button>
+          <button class="copy-btn" onclick="copyCard(this)">copiar</button>
         </div>
         <pre><span class="cm"># Verificar grupo</span>
 <span class="kw">if</span> body.is_in_group(<span class="str">"enemigos"</span>):
@@ -607,11 +692,12 @@ get_tree().<span class="fn">call_group</span>(
 <span class="kw">var</span> p = get_node(<span class="str">"/root/Player"</span>)
 <span class="kw">var</span> ui = $<span class="str">"../UI/VidaBar"</span></pre>
       </div>
+
     </div>
   </div>
 
-  <!-- NOMBRES -->
-  <div class="panel" id="panel-nombres">
+  <!-- ══ NOMBRES ══ -->
+  <div class="panel" id="panel-nombres" role="tabpanel">
     <p class="section-title">Convenciones de Nombres en GDScript</p>
 
     <div class="tip">
@@ -619,60 +705,64 @@ get_tree().<span class="fn">call_group</span>(
     </div>
 
     <table class="naming-table">
-      <tr>
-        <th>Tipo</th>
-        <th>Estilo</th>
-        <th>Ejemplo</th>
-        <th>Tag</th>
-      </tr>
-      <tr>
-        <td>Variables</td>
-        <td><code>snake_case</code></td>
-        <td><code>velocidad_maxima</code>, <code>vida_actual</code></td>
-        <td><span class="tag tag-green">var</span></td>
-      </tr>
-      <tr>
-        <td>Funciones</td>
-        <td><code>snake_case</code></td>
-        <td><code>recibir_daño()</code>, <code>esta_vivo()</code></td>
-        <td><span class="tag tag-green">func</span></td>
-      </tr>
-      <tr>
-        <td>Constantes</td>
-        <td><code>UPPER_SNAKE_CASE</code></td>
-        <td><code>VELOCIDAD_MAX</code>, <code>VIDA_MAX</code></td>
-        <td><span class="tag tag-yellow">const</span></td>
-      </tr>
-      <tr>
-        <td>Clases / Enums</td>
-        <td><code>PascalCase</code></td>
-        <td><code>class_name Jugador</code>, <code>enum Estado</code></td>
-        <td><span class="tag tag-purple">class</span></td>
-      </tr>
-      <tr>
-        <td>Señales</td>
-        <td><code>snake_case</code> (pasado)</td>
-        <td><code>vida_cambiada</code>, <code>objeto_recogido</code></td>
-        <td><span class="tag tag-red">signal</span></td>
-      </tr>
-      <tr>
-        <td>Privadas</td>
-        <td><code>_snake_case</code></td>
-        <td><code>_esta_muerto</code>, <code>_morir()</code></td>
-        <td><span class="tag tag-purple">_var</span></td>
-      </tr>
-      <tr>
-        <td>Señales conectadas</td>
-        <td><code>_on_Nodo_señal</code></td>
-        <td><code>_on_timer_timeout()</code></td>
-        <td><span class="tag tag-red">_on_</span></td>
-      </tr>
-      <tr>
-        <td>Nodos @onready</td>
-        <td>nombre descriptivo</td>
-        <td><code>animacion</code>, <code>sprite</code>, <code>colision</code></td>
-        <td><span class="tag tag-yellow">@onready</span></td>
-      </tr>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Estilo</th>
+          <th>Ejemplo</th>
+          <th>Tag</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Variables</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">snake_case</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">velocidad_maxima</code>, <code style="color:var(--muted);font-family:var(--font-mono)">vida_actual</code></td>
+          <td><span class="tag tag-green">var</span></td>
+        </tr>
+        <tr>
+          <td>Funciones</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">snake_case</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">recibir_daño()</code>, <code style="color:var(--muted);font-family:var(--font-mono)">esta_vivo()</code></td>
+          <td><span class="tag tag-green">func</span></td>
+        </tr>
+        <tr>
+          <td>Constantes</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">UPPER_SNAKE</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">VELOCIDAD_MAX</code>, <code style="color:var(--muted);font-family:var(--font-mono)">VIDA_MAX</code></td>
+          <td><span class="tag tag-yellow">const</span></td>
+        </tr>
+        <tr>
+          <td>Clases / Enums</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">PascalCase</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">class_name Jugador</code>, <code style="color:var(--muted);font-family:var(--font-mono)">enum Estado</code></td>
+          <td><span class="tag tag-purple">class</span></td>
+        </tr>
+        <tr>
+          <td>Señales</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">snake_case</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">vida_cambiada</code>, <code style="color:var(--muted);font-family:var(--font-mono)">objeto_recogido</code></td>
+          <td><span class="tag tag-red">signal</span></td>
+        </tr>
+        <tr>
+          <td>Privadas</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">_snake_case</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">_esta_muerto</code>, <code style="color:var(--muted);font-family:var(--font-mono)">_morir()</code></td>
+          <td><span class="tag tag-purple">_var</span></td>
+        </tr>
+        <tr>
+          <td>Señales conectadas</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">_on_Nodo_señal</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">_on_timer_timeout()</code></td>
+          <td><span class="tag tag-red">_on_</span></td>
+        </tr>
+        <tr>
+          <td>Nodos @onready</td>
+          <td><code style="color:var(--accent);font-family:var(--font-mono)">descriptivo</code></td>
+          <td><code style="color:var(--muted);font-family:var(--font-mono)">animacion</code>, <code style="color:var(--muted);font-family:var(--font-mono)">sprite</code></td>
+          <td><span class="tag tag-yellow">@onready</span></td>
+        </tr>
+      </tbody>
     </table>
 
     <div class="tip">
@@ -680,8 +770,8 @@ get_tree().<span class="fn">call_group</span>(
     </div>
   </div>
 
-  <!-- TEMPLATE COMPLETO -->
-  <div class="panel" id="panel-template">
+  <!-- ══ TEMPLATE COMPLETO ══ -->
+  <div class="panel" id="panel-template" role="tabpanel">
     <p class="section-title">Template Completo — Copiar y Pegar</p>
 
     <div class="big-block">
@@ -783,19 +873,27 @@ get_tree().<span class="fn">call_group</span>(
     <span class="kw">if</span> body.is_in_group(<span class="str">"enemigos"</span>):
         recibir_daño(<span class="num">10</span>)</pre>
     </div>
+
+    <div class="av-notice">
+      <strong>💡 Tip:</strong> Este template sigue las convenciones oficiales de Godot 4. Adapta los nombres de nodos y señales a tu proyecto.
+    </div>
   </div>
 
 </div>
 
 <script>
-function showPanel(name) {
+function showPanel(name, tabEl) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
   document.getElementById('panel-' + name).classList.add('active');
-  event.target.classList.add('active');
+  tabEl.classList.add('active');
+  tabEl.setAttribute('aria-selected', 'true');
 }
 
-function copyCode(btn) {
+function copyCard(btn) {
   const pre = btn.closest('.card').querySelector('pre');
   navigator.clipboard.writeText(pre.innerText).then(() => {
     btn.textContent = '✓ copiado';
@@ -809,7 +907,7 @@ function copyBigBlock(btn) {
   navigator.clipboard.writeText(pre.innerText).then(() => {
     btn.textContent = '✓ copiado';
     btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'copiar todo'; btn.classList.remove('copied'); }, 1500);
+    setTimeout(() => { btn.textContent = 'copiar todo'; btn.classList.remove('copied'); }, 1600);
   });
 }
 </script>
