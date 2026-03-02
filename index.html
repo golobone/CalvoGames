@@ -336,68 +336,208 @@
     .av-notice strong { color: var(--accent); }
 
     /* ═══════════════════════════════════════════
-       PERFIL FLOTANTE (sin cambios visuales,
-       solo accesibilidad y a11y mejorados)
+       WIDGET DE USUARIO — REDISEÑO COMPLETO
     ═══════════════════════════════════════════ */
-    #perfil-flotante-cg {
+
+    /* Píldora flotante clickable */
+    #cg-widget {
       position: fixed;
-      top: 15px;
-      right: 15px;
-      background: rgba(30, 30, 30, 0.95);
-      padding: 8px 15px;
-      border-radius: 50px;
-      border: 1px solid #444;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      top: 16px;
+      right: 16px;
       z-index: 99999;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
       font-family: var(--font-body);
     }
 
-    .avatar-circulo-cg {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
+    /* Trigger: la píldora que siempre se ve */
+    #cg-trigger {
       display: flex;
-      justify-content: center;
       align-items: center;
-      font-weight: bold;
-      font-size: 18px;
-      color: white;
+      gap: 10px;
+      padding: 7px 14px 7px 8px;
+      background: rgba(18, 16, 38, 0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50px;
       cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      user-select: none;
+    }
+    #cg-trigger:hover {
+      border-color: rgba(255,255,255,0.25);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.55);
+    }
+
+    /* Avatar circular */
+    #cg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       background: #555;
-      transition: background var(--transition);
-      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: 0;
+      transition: background 0.2s;
     }
 
-    .avatar-circulo-cg:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+    /* Texto de la píldora */
+    #cg-trigger-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
     }
-
-    .avatar-info-cg { display: flex; flex-direction: column; gap: 2px; }
-    .avatar-nombre-cg { color: #fff; font-size: 13px; font-weight: 600; }
-
-    #btn-admin-panel-cg {
-      display: none;
-      margin-top: 4px;
-      padding: 3px 8px;
-      font-size: 9px;
-      font-weight: 900;
+    #cg-trigger-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #cg-trigger-sub {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      text-decoration: none;
-      border-radius: 4px;
-      text-align: center;
-      letter-spacing: 0.5px;
-      transition: background var(--transition), color var(--transition);
+      white-space: nowrap;
     }
-    .btn-owner-cg  { color: #2ecc71 !important; border: 1px solid #2ecc71; background: rgba(46,204,113,0.1); }
-    .btn-owner-cg:hover, .btn-owner-cg:focus-visible  { background: #2ecc71; color: #000 !important; }
-    .btn-admin-cg  { color: #e74c3c !important; border: 1px solid #e74c3c; background: rgba(231,76,60,0.1); }
-    .btn-admin-cg:hover, .btn-admin-cg:focus-visible  { background: #e74c3c; color: #fff !important; }
-    .btn-sesion-cg { color: #ff9800; font-size: 11px; cursor: pointer; text-decoration: none; font-weight: bold; }
-    .btn-sesion-cg:focus-visible { outline: 2px solid #ff9800; outline-offset: 2px; border-radius: 2px; }
+    .cg-role-guest  { color: rgba(255,255,255,0.4); }
+    .cg-role-user   { color: #ff9800; }
+    .cg-role-admin  { color: #e74c3c; }
+    .cg-role-owner  { color: #2ecc71; }
+
+    /* Chevron */
+    #cg-chevron {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: rgba(255,255,255,0.35);
+      transition: transform 0.22s ease;
+      margin-left: 2px;
+    }
+    #cg-widget.is-open #cg-chevron { transform: rotate(180deg); }
+
+    /* Dropdown */
+    #cg-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 210px;
+      background: rgba(18, 16, 38, 0.97);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      padding: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px) scale(0.97);
+      transform-origin: top right;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    #cg-widget.is-open #cg-dropdown {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Cabecera del dropdown (usuario logueado) */
+    .cg-dd-header {
+      display: none;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 4px;
+    }
+    .cg-dd-header.visible { display: block; }
+    .cg-dd-header-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cg-dd-header-email {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.38);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    /* Badge de rol dentro del dropdown */
+    .cg-role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .cg-role-badge.owner { background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid rgba(46,204,113,0.35); }
+    .cg-role-badge.admin { background: rgba(231,76,60,0.15);  color: #e74c3c; border: 1px solid rgba(231,76,60,0.35); }
+    .cg-role-badge.user  { background: rgba(255,152,0,0.12);  color: #ff9800; border: 1px solid rgba(255,152,0,0.3); }
+
+    /* Items del dropdown */
+    .cg-dd-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 9px;
+      border: none;
+      background: none;
+      color: rgba(255,255,255,0.75);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+      box-sizing: border-box;
+    }
+    .cg-dd-item:hover, .cg-dd-item:focus-visible {
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      outline: none;
+    }
+    .cg-dd-item.danger { color: rgba(231,76,60,0.85); }
+    .cg-dd-item.danger:hover, .cg-dd-item.danger:focus-visible { background: rgba(231,76,60,0.12); color: #e74c3c; }
+    .cg-dd-item.accent { color: var(--accent); font-weight: 600; }
+    .cg-dd-item.accent:hover, .cg-dd-item.accent:focus-visible { background: rgba(22,255,187,0.1); }
+
+    /* Icono dentro de item */
+    .cg-dd-item svg {
+      width: 15px; height: 15px; flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .cg-dd-item:hover svg, .cg-dd-item:focus-visible svg { opacity: 1; }
+
+    /* Separador */
+    .cg-dd-sep {
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin: 4px 0;
+    }
+
+    /* Panel admin oculto — sólo visible para roles autorizados */
+    .cg-dd-panel-item { display: none; }
+    .cg-dd-panel-item.visible { display: flex; }
 
     /* ═══════════════════════════════════════════
        RESPONSIVE
@@ -440,24 +580,40 @@
   <div class="site-bg" role="presentation" aria-hidden="true"></div>
 
   <!-- ══════════════════════════════════════
-       PERFIL FLOTANTE
+       WIDGET DE USUARIO
   ══════════════════════════════════════ -->
-  <nav id="perfil-flotante-cg" role="navigation" aria-label="Cuenta de usuario">
-    <button
-      class="avatar-circulo-cg"
-      id="cg-user-letra"
-      onclick="window.location.href='login/'"
-      aria-label="Ir al perfil de usuario"
-      title="Mi perfil"
-    >?</button>
-    <div class="avatar-info-cg">
-      <span class="avatar-nombre-cg" id="cg-user-name">Invitado</span>
-      <div id="cg-auth-container">
-        <a href="login/" class="btn-sesion-cg">Iniciar Sesión</a>
+  <div id="cg-widget" role="navigation" aria-label="Cuenta de usuario">
+    <button id="cg-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="cg-dropdown">
+      <div id="cg-avatar" aria-hidden="true">?</div>
+      <div id="cg-trigger-info">
+        <span id="cg-trigger-name">Invitado</span>
+        <span id="cg-trigger-sub" class="cg-role-guest">Sin sesión</span>
       </div>
-      <a href="admin/dashboard" id="btn-admin-panel-cg" aria-label="Panel de administración">PANEL</a>
+      <svg id="cg-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div id="cg-dropdown" role="menu" aria-label="Opciones de usuario">
+      <div class="cg-dd-header" id="cg-dd-header">
+        <div class="cg-dd-header-name" id="cg-dd-fullname">—</div>
+        <div class="cg-dd-header-email" id="cg-dd-email">—</div>
+        <span class="cg-role-badge user" id="cg-dd-badge">Usuario</span>
+      </div>
+      <a href="login/" class="cg-dd-item accent" id="cg-item-login" role="menuitem">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3M7 11l3-3-3-3M10 8H3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Iniciar Sesión
+      </a>
+      <a href="admin/dashboard" class="cg-dd-item cg-dd-panel-item" id="cg-item-panel" role="menuitem" tabindex="-1">
+        <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.6"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span id="cg-panel-label">Panel Admin</span>
+      </a>
+      <div class="cg-dd-sep" id="cg-sep-logout" style="display:none"></div>
+      <button class="cg-dd-item danger" id="cg-item-logout" role="menuitem" style="display:none">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3M11 11l3-3-3-3M14 8H7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Cerrar Sesión
+      </button>
     </div>
-  </nav>
+  </div>
 
   <!-- ══════════════════════════════════════
        CONTENIDO PRINCIPAL
@@ -674,74 +830,157 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js" defer></script>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Esperar a que Firebase cargue
+  (function() {
+    /* ─── DROPDOWN TOGGLE ─────────────────────────── */
+    var widget   = document.getElementById('cg-widget');
+    var trigger  = document.getElementById('cg-trigger');
+    var dropdown = document.getElementById('cg-dropdown');
+
+    function openDropdown() {
+      widget.classList.add('is-open');
+      trigger.setAttribute('aria-expanded', 'true');
+      // Poner foco en el primer item activo
+      var first = dropdown.querySelector('.cg-dd-item:not([style*="display:none"])');
+      if (first) setTimeout(function(){ first.focus(); }, 50);
+    }
+    function closeDropdown() {
+      widget.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      widget.classList.contains('is-open') ? closeDropdown() : openDropdown();
+    });
+
+    // Cerrar al hacer click fuera
+    document.addEventListener('click', function(e) {
+      if (!widget.contains(e.target)) closeDropdown();
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { closeDropdown(); trigger.focus(); }
+    });
+
+    /* ─── FIREBASE INIT ───────────────────────────── */
     function initFirebase() {
-      if (typeof firebase === 'undefined') {
-        setTimeout(initFirebase, 100);
-        return;
+      if (typeof firebase === 'undefined') { setTimeout(initFirebase, 100); return; }
+
+      var cgConfig = {
+        apiKey:     "AIzaSyAqprLLzZIfM2WnJsHISksgraZ2NJnQnRw",
+        authDomain: "calvogames-v1.firebaseapp.com",
+        projectId:  "calvogames-v1",
+        appId:      "1:490748488828:web:eb32857a4e203ce33b6df9"
+      };
+      var cgApp  = firebase.apps.length ? firebase.app() : firebase.initializeApp(cgConfig);
+      var cgAuth = cgApp.auth();
+      var cgDb   = firebase.firestore();
+      var OWNER  = "keray.mendez@gmail.com";
+
+      // Referencias DOM
+      var elAvatar     = document.getElementById('cg-avatar');
+      var elName       = document.getElementById('cg-trigger-name');
+      var elSub        = document.getElementById('cg-trigger-sub');
+      var elHeader     = document.getElementById('cg-dd-header');
+      var elFullname   = document.getElementById('cg-dd-fullname');
+      var elEmail      = document.getElementById('cg-dd-email');
+      var elBadge      = document.getElementById('cg-dd-badge');
+      var elLogin      = document.getElementById('cg-item-login');
+      var elPanel      = document.getElementById('cg-item-panel');
+      var elPanelLabel = document.getElementById('cg-panel-label');
+      var elLogout     = document.getElementById('cg-item-logout');
+      var elSepLogout  = document.getElementById('cg-sep-logout');
+
+      /* Mostrar panel SOLO si el rol está verificado en Firebase */
+      function showPanel(role) {
+        elPanel.classList.add('visible');
+        elPanel.removeAttribute('tabindex');
+        if (role === 'owner') {
+          elPanelLabel.textContent = '⭐ Owner Panel';
+          elPanel.classList.add('accent');
+          // Badge
+          elBadge.textContent = 'Owner';
+          elBadge.className   = 'cg-role-badge owner';
+          elSub.textContent   = 'Owner';
+          elSub.className     = 'cg-role-owner';
+        } else {
+          elPanelLabel.textContent = '⚙ Admin Panel';
+          elPanel.classList.add('accent');
+          elBadge.textContent = 'Admin';
+          elBadge.className   = 'cg-role-badge admin';
+          elSub.textContent   = 'Admin';
+          elSub.className     = 'cg-role-admin';
+        }
       }
 
-      const cgConfig = {
-        apiKey: "AIzaSyAqprLLzZIfM2WnJsHISksgraZ2NJnQnRw",
-        authDomain: "calvogames-v1.firebaseapp.com",
-        projectId: "calvogames-v1",
-        appId: "1:490748488828:web:eb32857a4e203ce33b6df9"
-      };
+      /* Doble verificación del panel: al hacer click comprueba sesión activa */
+      elPanel.addEventListener('click', function(e) {
+        e.preventDefault();
+        cgAuth.currentUser ? window.location.href = 'admin/dashboard' : closeDropdown();
+      });
 
-      const cgApp = !firebase.apps.length ? firebase.initializeApp(cgConfig) : firebase.app();
-      const cgAuth = cgApp.auth();
-      const cgDb = firebase.firestore();
-      const OWNER_EMAIL = "keray.mendez@gmail.com";
+      elLogout.addEventListener('click', function() {
+        cgAuth.signOut().then(function() { location.reload(); });
+      });
 
+      /* Auth state */
       cgAuth.onAuthStateChanged(function(user) {
-        const letra    = document.getElementById('cg-user-letra');
-        const nombre   = document.getElementById('cg-user-name');
-        const container = document.getElementById('cg-auth-container');
-        const panelBtn = document.getElementById('btn-admin-panel-cg');
-
         if (user) {
-          const displayName = user.displayName || "Usuario";
-          nombre.textContent = displayName;
-          letra.textContent  = displayName.charAt(0).toUpperCase();
-          letra.style.background = "#ff9800";
-          letra.setAttribute('aria-label', 'Perfil de ' + displayName);
+          var name  = user.displayName || "Usuario";
+          var email = user.email || "";
+          var letra = name.charAt(0).toUpperCase();
 
-          const logoutBtn = document.createElement('button');
-          logoutBtn.className = 'btn-sesion-cg';
-          logoutBtn.textContent = 'Cerrar Sesión';
-          logoutBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:#aaa;font-size:11px;font-weight:bold;padding:0;';
-          logoutBtn.addEventListener('click', function() {
-            cgAuth.signOut().then(function() { location.reload(); });
-          });
-          container.innerHTML = '';
-          container.appendChild(logoutBtn);
+          // Píldora
+          elAvatar.textContent  = letra;
+          elAvatar.style.background = "#ff9800";
+          elName.textContent    = name;
+          elSub.textContent     = 'Usuario';
+          elSub.className       = 'cg-role-user';
 
-          if (user.email === OWNER_EMAIL) {
-            panelBtn.style.display = "block";
-            panelBtn.className = "btn-owner-cg";
-            panelBtn.textContent = "⭐ OWNER PANEL";
+          // Cabecera dropdown
+          elHeader.classList.add('visible');
+          elFullname.textContent = name;
+          elEmail.textContent    = email;
+          elBadge.textContent    = 'Usuario';
+          elBadge.className      = 'cg-role-badge user';
+
+          // Mostrar logout, ocultar login
+          elLogin.style.display    = 'none';
+          elLogout.style.display   = 'flex';
+          elSepLogout.style.display = 'block';
+
+          // Verificar rol
+          if (email === OWNER) {
+            showPanel('owner');
           } else {
-            cgDb.collection("users").doc(user.uid).get().then(function(doc) {
-              if (doc.exists && doc.data().rol === "admin") {
-                panelBtn.style.display = "block";
-                panelBtn.className = "btn-admin-cg";
-                panelBtn.textContent = "⚙️ ADMIN PANEL";
-              }
-            });
+            // Verificación en Firestore (no se confía en localStorage ni variables)
+            cgDb.collection("users").doc(user.uid).get()
+              .then(function(doc) {
+                if (doc.exists && doc.data().rol === "admin") showPanel('admin');
+              })
+              .catch(function() { /* sin acceso al panel si falla */ });
           }
+
         } else {
-          letra.textContent = "?";
-          letra.style.background = "#555";
-          nombre.textContent = "Invitado";
-          panelBtn.style.display = "none";
-          container.innerHTML = '<a href="login/" class="btn-sesion-cg">Iniciar Sesión</a>';
+          // Sin sesión — resetear todo
+          elAvatar.textContent      = '?';
+          elAvatar.style.background = '#555';
+          elName.textContent        = 'Invitado';
+          elSub.textContent         = 'Sin sesión';
+          elSub.className           = 'cg-role-guest';
+          elHeader.classList.remove('visible');
+          elLogin.style.display     = '';
+          elLogout.style.display    = 'none';
+          elSepLogout.style.display = 'none';
+          elPanel.classList.remove('visible');
+          elPanel.setAttribute('tabindex', '-1');
         }
       });
     }
 
-    initFirebase();
-  });
+    document.addEventListener('DOMContentLoaded', initFirebase);
+  })();
   </script>
 </body>
 </html>
