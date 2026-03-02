@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDScript 4.6 — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--s:#13161e;--s2:#1a1e2a;--b:#252a38;--a:#478cbf;--a2:#3fcf8e;--a3:#e06c75;--a4:#e5c07b;--a5:#c678dd;--t:#abb2bf;--tb:#e6edf3;--td:#5c6370}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--t);font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.6}
+.hdr{background:linear-gradient(135deg,#0d0f14,#1a1e2a,#0d0f14);border-bottom:1px solid var(--b);padding:32px 40px 24px}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-i{width:46px;height:46px;background:linear-gradient(135deg,var(--a),var(--a2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;font-family:'Syne',sans-serif}
+h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--tb);letter-spacing:-1px}
+.sub{color:var(--td);font-size:11px;margin-top:3px;letter-spacing:2px;text-transform:uppercase}
+.sb{padding:12px 40px;background:var(--s);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:100}
+.si{width:100%;max-width:500px;background:var(--s2);border:1px solid var(--b);border-radius:6px;padding:7px 12px;color:var(--tb);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .2s}
+.si::placeholder{color:var(--td)}
+.si:focus{border-color:var(--a)}
+.ct{padding:28px 40px;max-width:1600px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px;margin-bottom:32px}
+.gw{grid-template-columns:repeat(auto-fill,minmax(500px,1fr))}
+.card{background:var(--s);border:1px solid var(--b);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--a)}
+.card.hide{display:none}
+.ch{padding:11px 15px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px;background:var(--s2)}
+.ctit{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--tb);flex:1}
+.tag{font-size:9px;padding:2px 6px;border-radius:4px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.tb2{background:rgba(71,140,191,.2);color:var(--a)}
+.tg{background:rgba(63,207,142,.2);color:var(--a2)}
+.tr{background:rgba(224,108,117,.2);color:var(--a3)}
+.ty{background:rgba(229,192,123,.2);color:var(--a4)}
+.tp{background:rgba(198,120,221,.2);color:var(--a5)}
+.row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid rgba(37,42,56,.5);transition:background .1s}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--s2)}
+.rl{padding:6px 14px;color:var(--td);font-size:11px;border-right:1px solid rgba(37,42,56,.5);display:flex;align-items:center}
+.rc{padding:6px 14px;color:var(--a2);font-size:11px;display:flex;align-items:center;flex-wrap:wrap;gap:3px}
+.kw{color:var(--a5)}
+.fn{color:var(--a)}
+.str{color:var(--a4)}
+.num{color:var(--a3)}
+.cmt{color:var(--td);font-style:italic}
+.ty2{color:var(--a4)}
+.rf{padding:8px 14px;border-bottom:1px solid rgba(37,42,56,.5);transition:background .1s}
+.rf:last-child{border-bottom:none}
+.rf:hover{background:var(--s2)}
+.rf code{color:var(--a2);font-size:11px;display:block;margin-top:2px;font-family:'JetBrains Mono',monospace;white-space:pre;line-height:1.7}
+.rf .d{color:var(--td);font-size:10px;margin-bottom:1px}
+.st{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--tb);margin:28px 0 14px;padding-bottom:7px;border-bottom:1px solid var(--b)}
+.st:first-child{margin-top:0}
+.badge{display:inline-block;background:rgba(71,140,191,.15);color:var(--a);border:1px solid rgba(71,140,191,.3);border-radius:5px;padding:2px 8px;font-size:10px;margin-left:8px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="logo">
+    <div class="logo-i">GDS</div>
+    <div>
+      <h1>GDScript 4.6 <span class="badge">Godot 4.6</span></h1>
+      <div class="sub">Variables · Tipos · Flujo · Funciones · Clases · Señales · Math · Vectores · Async</div>
+    </div>
+  </div>
+</div>
+<div class="sb">
+  <input class="si" id="q" type="text" placeholder="🔍 Buscar: var, func, signal, array, lerp..." oninput="search()">
+</div>
+<div class="ct">
+
+<div class="st">Variables y Anotaciones</div>
+<div class="grid">
+
+<div class="card" data-s="var const static export onready variables anotaciones">
+  <div class="ch"><span class="ctit">Declaración de Variables</span><span class="tag tb2">VARS</span></div>
+  <div class="row"><div class="rl">var dinámica</div><div class="rc"><span class="kw">var</span> nombre = valor</div></div>
+  <div class="row"><div class="rl">var tipada</div><div class="rc"><span class="kw">var</span> vida<span class="ty2">: int</span> = 100</div></div>
+  <div class="row"><div class="rl">inferencia tipo</div><div class="rc"><span class="kw">var</span> x<span class="ty2"> :=</span> 3.14</div></div>
+  <div class="row"><div class="rl">constante</div><div class="rc"><span class="kw">const</span> MAX<span class="ty2">: int</span> = 999</div></div>
+  <div class="row"><div class="rl">static var</div><div class="rc"><span class="kw">static var</span> contador = 0</div></div>
+  <div class="row"><div class="rl">@onready</div><div class="rc"><span class="kw">@onready var</span> spr = $Sprite2D</div></div>
+  <div class="row"><div class="rl">@export</div><div class="rc"><span class="kw">@export var</span> vel<span class="ty2">: float</span> = 200.0</div></div>
+  <div class="row"><div class="rl">@export_range</div><div class="rc"><span class="kw">@export_range(</span>0, 100<span class="kw">)</span> <span class="kw">var</span> hp = 100</div></div>
+  <div class="row"><div class="rl">@export_enum</div><div class="rc"><span class="kw">@export_enum(</span><span class="str">"Idle","Run"</span><span class="kw">)</span> <span class="kw">var</span> estado</div></div>
+  <div class="row"><div class="rl">@export_group</div><div class="rc"><span class="kw">@export_group(</span><span class="str">"Combate"</span><span class="kw">)</span></div></div>
+  <div class="row"><div class="rl">@export_subgroup</div><div class="rc"><span class="kw">@export_subgroup(</span><span class="str">"Stats"</span><span class="kw">)</span></div></div>
+  <div class="row"><div class="rl">@export_category</div><div class="rc"><span class="kw">@export_category(</span><span class="str">"Config"</span><span class="kw">)</span></div></div>
+</div>
+
+<div class="card" data-s="tipos int float string bool vector2 vector3 array dict color nodepath">
+  <div class="ch"><span class="ctit">Tipos de Datos</span><span class="tag tg">TIPOS</span></div>
+  <div class="row"><div class="rl">int</div><div class="rc"><span class="num">42</span>, <span class="num">-7</span>, <span class="num">0xFF</span>, <span class="num">0b1010</span></div></div>
+  <div class="row"><div class="rl">float</div><div class="rc"><span class="num">3.14</span>, <span class="num">1.5e2</span>, <span class="num">0.0</span></div></div>
+  <div class="row"><div class="rl">bool</div><div class="rc"><span class="kw">true</span> / <span class="kw">false</span></div></div>
+  <div class="row"><div class="rl">String</div><div class="rc"><span class="str">"hola"</span>, <span class="str">'mundo'</span></div></div>
+  <div class="row"><div class="rl">StringName</div><div class="rc"><span class="str">&amp;"nombre"</span> <span class="cmt"># más rápido</span></div></div>
+  <div class="row"><div class="rl">Vector2</div><div class="rc"><span class="ty2">Vector2(</span>x, y<span class="ty2">)</span></div></div>
+  <div class="row"><div class="rl">Vector2i</div><div class="rc"><span class="ty2">Vector2i(</span>x, y<span class="ty2">)</span> <span class="cmt"># enteros</span></div></div>
+  <div class="row"><div class="rl">Vector3</div><div class="rc"><span class="ty2">Vector3(</span>x, y, z<span class="ty2">)</span></div></div>
+  <div class="row"><div class="rl">Vector3i</div><div class="rc"><span class="ty2">Vector3i(</span>x, y, z<span class="ty2">)</span></div></div>
+  <div class="row"><div class="rl">Vector4</div><div class="rc"><span class="ty2">Vector4(</span>x, y, z, w<span class="ty2">)</span></div></div>
+  <div class="row"><div class="rl">Color</div><div class="rc"><span class="ty2">Color(</span>r,g,b,a<span class="ty2">)</span> · <span class="ty2">Color.RED</span></div></div>
+  <div class="row"><div class="rl">Array</div><div class="rc">[<span class="num">1</span>, <span class="str">"a"</span>, <span class="kw">true</span>]</div></div>
+  <div class="row"><div class="rl">Array tipado</div><div class="rc"><span class="ty2">Array[int]</span> = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>]</div></div>
+  <div class="row"><div class="rl">Dictionary</div><div class="rc">{<span class="str">"key"</span>: valor}</div></div>
+  <div class="row"><div class="rl">NodePath</div><div class="rc"><span class="ty2">NodePath(</span><span class="str">"Hijo/Nieto"</span><span class="ty2">)</span></div></div>
+  <div class="row"><div class="rl">Callable</div><div class="rc"><span class="ty2">Callable(</span>obj, <span class="str">"fn"</span><span class="ty2">)</span></div></div>
+  <div class="row"><div class="rl">null</div><div class="rc"><span class="kw">null</span></div></div>
+</div>
+
+<div class="card" data-s="casting conversion tipo typeof is as">
+  <div class="ch"><span class="ctit">Conversión de Tipos</span><span class="tag tp">CAST</span></div>
+  <div class="row"><div class="rl">int a float</div><div class="rc"><span class="kw">float</span>(mi_int)</div></div>
+  <div class="row"><div class="rl">float a int</div><div class="rc"><span class="kw">int</span>(mi_float)</div></div>
+  <div class="row"><div class="rl">string a int</div><div class="rc">s.<span class="fn">to_int()</span></div></div>
+  <div class="row"><div class="rl">string a float</div><div class="rc">s.<span class="fn">to_float()</span></div></div>
+  <div class="row"><div class="rl">int a string</div><div class="rc"><span class="kw">str</span>(mi_int)</div></div>
+  <div class="row"><div class="rl">cast seguro</div><div class="rc">nodo <span class="kw">as</span> <span class="ty2">Player</span> <span class="cmt"># null si falla</span></div></div>
+  <div class="row"><div class="rl">verificar tipo</div><div class="rc">nodo <span class="kw">is</span> <span class="ty2">CharacterBody2D</span></div></div>
+  <div class="row"><div class="rl">typeof</div><div class="rc"><span class="fn">typeof</span>(val) == <span class="ty2">TYPE_INT</span></div></div>
+  <div class="row"><div class="rl">is_instance_of</div><div class="rc"><span class="fn">is_instance_of</span>(obj, <span class="ty2">Node</span>)</div></div>
+</div>
+
+</div><!-- /grid -->
+
+<div class="st">String</div>
+<div class="grid">
+
+<div class="card" data-s="string metodos texto length upper lower contains split join trim replace format">
+  <div class="ch"><span class="ctit">String — Métodos</span><span class="tag ty">STRING</span></div>
+  <div class="row"><div class="rl">longitud</div><div class="rc">s.<span class="fn">length()</span></div></div>
+  <div class="row"><div class="rl">mayúsculas / minús</div><div class="rc">s.<span class="fn">to_upper()</span> · s.<span class="fn">to_lower()</span></div></div>
+  <div class="row"><div class="rl">contiene</div><div class="rc">s.<span class="fn">contains(</span><span class="str">"x"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">empieza / termina con</div><div class="rc">s.<span class="fn">begins_with(</span><span class="str">"p"</span><span class="fn">)</span> · <span class="fn">ends_with(</span><span class="str">"o"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">reemplazar</div><div class="rc">s.<span class="fn">replace(</span><span class="str">"a"</span>, <span class="str">"b"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">separar</div><div class="rc">s.<span class="fn">split(</span><span class="str">","</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">unir array</div><div class="rc"><span class="str">"-"</span>.<span class="fn">join(</span>arr<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">trim espacios</div><div class="rc">s.<span class="fn">strip_edges()</span></div></div>
+  <div class="row"><div class="rl">substr</div><div class="rc">s.<span class="fn">substr(</span>inicio, len<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">encontrar índice</div><div class="rc">s.<span class="fn">find(</span><span class="str">"x"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">vacío</div><div class="rc">s.<span class="fn">is_empty()</span></div></div>
+  <div class="row"><div class="rl">repetir</div><div class="rc">s.<span class="fn">repeat(</span><span class="num">3</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">invertir</div><div class="rc">s.<span class="fn">reverse()</span></div></div>
+  <div class="row"><div class="rl">pad izquierda</div><div class="rc">s.<span class="fn">lpad(</span><span class="num">5</span>, <span class="str">"0"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">pad derecha</div><div class="rc">s.<span class="fn">rpad(</span><span class="num">5</span>, <span class="str">" "</span><span class="fn">)</span></div></div>
+</div>
+
+<div class="card" data-s="string formato interpolacion template">
+  <div class="ch"><span class="ctit">String — Formato</span><span class="tag ty">FORMAT</span></div>
+  <div class="rf"><div class="d">% operator</div><code><span class="str">"Hola %s, tienes %d pts"</span> % [nombre, pts]
+<span class="str">"%05.2f"</span> % 3.14  <span class="cmt"># → "03.14"</span></code></div>
+  <div class="rf"><div class="d">String.format() — diccionario</div><code><span class="str">"Hola {nombre}"</span>.<span class="fn">format</span>({<span class="str">"nombre"</span>: <span class="str">"Ana"</span>})</code></div>
+  <div class="rf"><div class="d">String.format() — array</div><code><span class="str">"Pos: {0}, {1}"</span>.<span class="fn">format</span>([x, y])</code></div>
+  <div class="rf"><div class="d">Multilinea</div><code><span class="kw">var</span> txt = <span class="str">"""
+Línea 1
+Línea 2
+"""</span></code></div>
+  <div class="rf"><div class="d">Especificadores %</div><code><span class="str">%s</span>  string    <span class="str">%d</span>  int
+<span class="str">%f</span>  float     <span class="str">%x</span>  hex
+<span class="str">%o</span>  octal     <span class="str">%e</span>  científico</code></div>
+</div>
+
+</div>
+
+<div class="st">Array y Dictionary</div>
+<div class="grid">
+
+<div class="card" data-s="array metodos append insert remove sort filter map reduce find has size clear">
+  <div class="ch"><span class="ctit">Array — Métodos</span><span class="tag tg">ARRAY</span></div>
+  <div class="row"><div class="rl">añadir al final</div><div class="rc">arr.<span class="fn">append(</span>item<span class="fn">)</span> · arr.<span class="fn">push_back(</span>item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">añadir al inicio</div><div class="rc">arr.<span class="fn">push_front(</span>item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">insertar en índice</div><div class="rc">arr.<span class="fn">insert(</span><span class="num">0</span>, item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">eliminar por valor</div><div class="rc">arr.<span class="fn">erase(</span>item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">eliminar por índice</div><div class="rc">arr.<span class="fn">remove_at(</span><span class="num">0</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">pop último / primero</div><div class="rc">arr.<span class="fn">pop_back()</span> · arr.<span class="fn">pop_front()</span></div></div>
+  <div class="row"><div class="rl">tamaño</div><div class="rc">arr.<span class="fn">size()</span></div></div>
+  <div class="row"><div class="rl">vacío</div><div class="rc">arr.<span class="fn">is_empty()</span></div></div>
+  <div class="row"><div class="rl">contiene</div><div class="rc">arr.<span class="fn">has(</span>item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">índice de</div><div class="rc">arr.<span class="fn">find(</span>item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">contar ocurrencias</div><div class="rc">arr.<span class="fn">count(</span>item<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">ordenar</div><div class="rc">arr.<span class="fn">sort()</span></div></div>
+  <div class="row"><div class="rl">ordenar custom</div><div class="rc">arr.<span class="fn">sort_custom(</span>fn<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">invertir</div><div class="rc">arr.<span class="fn">reverse()</span></div></div>
+  <div class="row"><div class="rl">mezclar</div><div class="rc">arr.<span class="fn">shuffle()</span></div></div>
+  <div class="row"><div class="rl">limpiar</div><div class="rc">arr.<span class="fn">clear()</span></div></div>
+  <div class="row"><div class="rl">filtrar</div><div class="rc">arr.<span class="fn">filter(</span><span class="kw">func</span>(x): <span class="kw">return</span> x > <span class="num">0</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">mapear</div><div class="rc">arr.<span class="fn">map(</span><span class="kw">func</span>(x): <span class="kw">return</span> x*<span class="num">2</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">reducir</div><div class="rc">arr.<span class="fn">reduce(</span><span class="kw">func</span>(a,b): <span class="kw">return</span> a+b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">cualquiera</div><div class="rc">arr.<span class="fn">any(</span><span class="kw">func</span>(x): <span class="kw">return</span> x > <span class="num">0</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">todos</div><div class="rc">arr.<span class="fn">all(</span><span class="kw">func</span>(x): <span class="kw">return</span> x > <span class="num">0</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">slice</div><div class="rc">arr.<span class="fn">slice(</span><span class="num">0</span>, <span class="num">3</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">duplicar</div><div class="rc">arr.<span class="fn">duplicate()</span> · arr.<span class="fn">duplicate(</span><span class="kw">true</span><span class="fn">)</span> <span class="cmt"># deep</span></div></div>
+  <div class="row"><div class="rl">concatenar</div><div class="rc">arr + otro_arr</div></div>
+  <div class="row"><div class="rl">redimensionar</div><div class="rc">arr.<span class="fn">resize(</span><span class="num">10</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">rellenar</div><div class="rc">arr.<span class="fn">fill(</span><span class="num">0</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">hacer único</div><div class="rc">arr.<span class="fn">make_read_only()</span></div></div>
+  <div class="row"><div class="rl">min / max</div><div class="rc">arr.<span class="fn">min()</span> · arr.<span class="fn">max()</span></div></div>
+</div>
+
+<div class="card" data-s="dictionary dict metodos keys values merge has get erase">
+  <div class="ch"><span class="ctit">Dictionary — Métodos</span><span class="tag tp">DICT</span></div>
+  <div class="row"><div class="rl">acceso</div><div class="rc">d[<span class="str">"key"</span>] · d.<span class="fn">get(</span><span class="str">"key"</span>, default<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">asignar</div><div class="rc">d[<span class="str">"key"</span>] = valor</div></div>
+  <div class="row"><div class="rl">contiene clave</div><div class="rc">d.<span class="fn">has(</span><span class="str">"key"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">eliminar clave</div><div class="rc">d.<span class="fn">erase(</span><span class="str">"key"</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">claves</div><div class="rc">d.<span class="fn">keys()</span></div></div>
+  <div class="row"><div class="rl">valores</div><div class="rc">d.<span class="fn">values()</span></div></div>
+  <div class="row"><div class="rl">tamaño</div><div class="rc">d.<span class="fn">size()</span></div></div>
+  <div class="row"><div class="rl">vacío</div><div class="rc">d.<span class="fn">is_empty()</span></div></div>
+  <div class="row"><div class="rl">limpiar</div><div class="rc">d.<span class="fn">clear()</span></div></div>
+  <div class="row"><div class="rl">fusionar</div><div class="rc">d.<span class="fn">merge(</span>otro<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">duplicar</div><div class="rc">d.<span class="fn">duplicate()</span></div></div>
+  <div class="row"><div class="rl">iterar</div><div class="rc"><span class="kw">for</span> k <span class="kw">in</span> d: d[k]</div></div>
+</div>
+
+</div>
+
+<div class="st">Control de Flujo</div>
+<div class="grid gw">
+
+<div class="card" data-s="if else elif match condicional ternario switch">
+  <div class="ch"><span class="ctit">Condicionales</span><span class="tag tb2">FLOW</span></div>
+  <div class="rf"><div class="d">if / elif / else</div><code><span class="kw">if</span> vida > <span class="num">0</span>:
+    atacar()
+<span class="kw">elif</span> vida == <span class="num">0</span>:
+    morir()
+<span class="kw">else</span>:
+    pass</code></div>
+  <div class="rf"><div class="d">Ternario inline</div><code><span class="kw">var</span> x = <span class="str">"vivo"</span> <span class="kw">if</span> vida > <span class="num">0</span> <span class="kw">else</span> <span class="str">"muerto"</span></code></div>
+  <div class="rf"><div class="d">match (como switch mejorado)</div><code><span class="kw">match</span> estado:
+    <span class="str">"idle"</span>:    idle()
+    <span class="str">"run"</span>:     correr()
+    <span class="str">"attack"</span>: atacar()
+    _:         pass  <span class="cmt"># default</span></code></div>
+  <div class="rf"><div class="d">match con múltiples valores</div><code><span class="kw">match</span> tecla:
+    <span class="ty2">KEY_LEFT</span>, <span class="ty2">KEY_A</span>: mover_izq()
+    <span class="ty2">KEY_RIGHT</span>, <span class="ty2">KEY_D</span>: mover_der()</code></div>
+  <div class="rf"><div class="d">match con rango y captura</div><code><span class="kw">match</span> vida:
+    <span class="num">0</span>:          morir()
+    <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>:   peligro()
+    <span class="kw">var</span> n <span class="kw">when</span> n > <span class="num">50</span>: ok()</code></div>
+  <div class="rf"><div class="d">match con tipo</div><code><span class="kw">match</span> typeof(val):
+    <span class="ty2">TYPE_INT</span>:    print(<span class="str">"int"</span>)
+    <span class="ty2">TYPE_STRING</span>: print(<span class="str">"string"</span>)
+    <span class="ty2">TYPE_ARRAY</span>:  print(<span class="str">"array"</span>)</code></div>
+  <div class="rf"><div class="d">match con arrays y dicts (pattern)</div><code><span class="kw">match</span> punto:
+    [<span class="kw">var</span> x, <span class="kw">var</span> y]: print(x, y)
+    {<span class="str">"x"</span>: <span class="kw">var</span> x}:  print(x)</code></div>
+</div>
+
+<div class="card" data-s="for while bucle loop range break continue">
+  <div class="ch"><span class="ctit">Bucles</span><span class="tag tp">LOOPS</span></div>
+  <div class="rf"><div class="d">for en rango</div><code><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range(</span><span class="num">10</span><span class="fn">)</span>:         <span class="cmt"># 0..9</span>
+    print(i)</code></div>
+  <div class="rf"><div class="d">for con inicio / fin / paso</div><code><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range(</span><span class="num">2</span>, <span class="num">10</span>, <span class="num">2</span><span class="fn">)</span>:   <span class="cmt"># 2,4,6,8</span>
+    print(i)</code></div>
+  <div class="rf"><div class="d">for inverso</div><code><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range(</span><span class="num">10</span>, <span class="num">0</span>, <span class="num">-1</span><span class="fn">)</span>: pass</code></div>
+  <div class="rf"><div class="d">for en array</div><code><span class="kw">for</span> item <span class="kw">in</span> array:
+    print(item)</code></div>
+  <div class="rf"><div class="d">for en diccionario</div><code><span class="kw">for</span> key <span class="kw">in</span> dict:
+    print(key, dict[key])</code></div>
+  <div class="rf"><div class="d">for en String</div><code><span class="kw">for</span> c <span class="kw">in</span> <span class="str">"hola"</span>:
+    print(c)  <span class="cmt"># h, o, l, a</span></code></div>
+  <div class="rf"><div class="d">while con break / continue</div><code><span class="kw">while</span> condicion:
+    <span class="kw">if</span> x: <span class="kw">break</span>     <span class="cmt"># salir</span>
+    <span class="kw">if</span> y: <span class="kw">continue</span>  <span class="cmt"># siguiente</span>
+    hacer_algo()</code></div>
+</div>
+
+</div>
+
+<div class="st">Funciones</div>
+<div class="grid gw">
+
+<div class="card" data-s="func funciones parametros retorno tipado default lambda callable">
+  <div class="ch"><span class="ctit">Funciones — Declaración</span><span class="tag tg">FUNC</span></div>
+  <div class="rf"><div class="d">Básica</div><code><span class="kw">func</span> <span class="fn">saludar()</span>:
+    print(<span class="str">"hola"</span>)</code></div>
+  <div class="rf"><div class="d">Con parámetros tipados y retorno</div><code><span class="kw">func</span> <span class="fn">sumar(</span>a<span class="ty2">: int</span>, b<span class="ty2">: int</span><span class="fn">)</span> <span class="ty2">-> int</span>:
+    <span class="kw">return</span> a + b</code></div>
+  <div class="rf"><div class="d">Parámetro con valor por defecto</div><code><span class="kw">func</span> <span class="fn">mover(</span>vel<span class="ty2">: float</span> = <span class="num">100.0</span>, dir = <span class="ty2">Vector2.RIGHT</span><span class="fn">)</span>:
+    position += dir * vel</code></div>
+  <div class="rf"><div class="d">Retorno void explícito</div><code><span class="kw">func</span> <span class="fn">limpiar()</span> <span class="ty2">-> void</span>:
+    array.<span class="fn">clear()</span></code></div>
+  <div class="rf"><div class="d">Lambda / función anónima</div><code><span class="kw">var</span> doble = <span class="kw">func</span>(x<span class="ty2">: int</span>) <span class="ty2">-> int</span>: <span class="kw">return</span> x * <span class="num">2</span>
+doble.<span class="fn">call(</span><span class="num">5</span><span class="fn">)</span>  <span class="cmt"># → 10</span></code></div>
+  <div class="rf"><div class="d">Lambda multilinea</div><code><span class="kw">var</span> fn = <span class="kw">func</span>(x):
+    <span class="kw">if</span> x > <span class="num">0</span>: <span class="kw">return</span> x
+    <span class="kw">return</span> -x</code></div>
+  <div class="rf"><div class="d">Callable — llamar función de otro nodo</div><code>$Hijo.<span class="fn">mi_funcion()</span>
+<span class="kw">var</span> c = <span class="ty2">Callable</span>($Hijo, <span class="str">"mi_funcion"</span>)
+c.<span class="fn">call()</span>
+c.<span class="fn">call_deferred()</span>  <span class="cmt"># al final del frame</span></code></div>
+  <div class="rf"><div class="d">Llamar con call_deferred</div><code"><span class="fn">call_deferred(</span><span class="str">"mi_funcion"</span>, arg1, arg2<span class="fn">)</span></code></div>
+</div>
+
+<div class="card" data-s="funciones virtuales ready process physics input notification draw enter exit tree">
+  <div class="ch"><span class="ctit">Funciones Virtuales (callbacks)</span><span class="tag tb2">VIRTUAL</span></div>
+  <div class="rf"><div class="d">Ciclo de vida</div><code><span class="kw">func</span> <span class="fn">_init()</span>:             <span class="cmt"># al crear objeto</span>
+    pass
+<span class="kw">func</span> <span class="fn">_enter_tree()</span>:       <span class="cmt"># entra al árbol</span>
+    pass
+<span class="kw">func</span> <span class="fn">_ready()</span>:             <span class="cmt"># nodo y hijos listos</span>
+    pass
+<span class="kw">func</span> <span class="fn">_exit_tree()</span>:        <span class="cmt"># sale del árbol</span>
+    pass</code></div>
+  <div class="rf"><div class="d">Proceso</div><code><span class="kw">func</span> <span class="fn">_process(</span>delta<span class="ty2">: float</span><span class="fn">)</span>:          <span class="cmt"># cada frame</span>
+    pass
+<span class="kw">func</span> <span class="fn">_physics_process(</span>delta<span class="ty2">: float</span><span class="fn">)</span>: <span class="cmt"># frame físico (60/s)</span>
+    pass</code></div>
+  <div class="rf"><div class="d">Input</div><code><span class="kw">func</span> <span class="fn">_input(</span>event<span class="ty2">: InputEvent</span><span class="fn">)</span>:          <span class="cmt"># todo input</span>
+    pass
+<span class="kw">func</span> <span class="fn">_unhandled_input(</span>event<span class="ty2">: InputEvent</span><span class="fn">)</span>: <span class="cmt"># no consumido</span>
+    pass
+<span class="kw">func</span> <span class="fn">_shortcut_input(</span>event<span class="ty2">: InputEvent</span><span class="fn">)</span>:  <span class="cmt"># shortcuts UI</span>
+    pass</code></div>
+  <div class="rf"><div class="d">Otros</div><code><span class="kw">func</span> <span class="fn">_draw()</span>:                   <span class="cmt"># dibujo custom</span>
+    pass
+<span class="kw">func</span> <span class="fn">_notification(</span>what<span class="ty2">: int</span><span class="fn">)</span>: <span class="cmt"># notificaciones</span>
+    pass
+<span class="kw">func</span> <span class="fn">_to_string()</span> <span class="ty2">-> String</span>:   <span class="cmt"># print(nodo)</span>
+    <span class="kw">return</span> <span class="str">"MiNodo"</span></code></div>
+  <div class="rf"><div class="d">Activar / desactivar proceso</div><code><span class="fn">set_process(</span><span class="kw">true</span><span class="fn">)</span>
+<span class="fn">set_physics_process(</span><span class="kw">false</span><span class="fn">)</span>
+<span class="fn">set_process_input(</span><span class="kw">true</span><span class="fn">)</span></code></div>
+</div>
+
+</div>
+
+<div class="st">Clases y Herencia</div>
+<div class="grid gw">
+
+<div class="card" data-s="class extends herencia super class_name inner inner class">
+  <div class="ch"><span class="ctit">Clases y Herencia</span><span class="tag tr">CLASS</span></div>
+  <div class="rf"><div class="d">Cabecera de script</div><code><span class="kw">extends</span> <span class="ty2">CharacterBody2D</span>
+<span class="kw">class_name</span> Jugador</code></div>
+  <div class="rf"><div class="d">Clase sin nodo base</div><code><span class="kw">extends</span> <span class="ty2">RefCounted</span>  <span class="cmt"># para clases puras</span>
+<span class="kw">class_name</span> Inventario</code></div>
+  <div class="rf"><div class="d">Clase interna</div><code><span class="kw">class</span> Stats:
+    <span class="kw">var</span> vida<span class="ty2">: int</span> = 100
+    <span class="kw">var</span> defensa<span class="ty2">: int</span> = 10
+    <span class="kw">func</span> <span class="fn">esta_vivo()</span> <span class="ty2">-> bool</span>:
+        <span class="kw">return</span> vida > <span class="num">0</span>
+
+<span class="kw">var</span> stats = Stats.<span class="kw">new()</span></code></div>
+  <div class="rf"><div class="d">super() — llamar al padre</div><code><span class="kw">func</span> <span class="fn">_ready()</span>:
+    <span class="kw">super()</span>               <span class="cmt"># _ready del padre</span>
+    <span class="kw">super</span>.<span class="fn">_ready()</span>        <span class="cmt"># equivalente</span>
+
+<span class="kw">func</span> <span class="fn">atacar()</span>:
+    <span class="kw">super</span>.<span class="fn">atacar()</span>        <span class="cmt"># versión padre</span>
+    efecto_especial()</code></div>
+  <div class="rf"><div class="d">Verificar tipo / cast</div><code><span class="kw">if</span> nodo <span class="kw">is</span> <span class="ty2">Player</span>:
+    (nodo <span class="kw">as</span> <span class="ty2">Player</span>).<span class="fn">atacar()</span>
+
+<span class="kw">var</span> p = nodo <span class="kw">as</span> <span class="ty2">Player</span>  <span class="cmt"># null si falla</span>
+<span class="kw">if</span> p: p.<span class="fn">atacar()</span></code></div>
+</div>
+
+<div class="card" data-s="signal señal emit connect disconnect await one_shot">
+  <div class="ch"><span class="ctit">Señales (Signal)</span><span class="tag tp">SIGNAL</span></div>
+  <div class="rf"><div class="d">Declarar señales</div><code><span class="kw">signal</span> vida_cambiada(nueva_vida<span class="ty2">: int</span>)
+<span class="kw">signal</span> muerto
+<span class="kw">signal</span> item_recogido(item<span class="ty2">: String</span>, pos<span class="ty2">: Vector2</span>)</code></div>
+  <div class="rf"><div class="d">Emitir</div><code>vida_cambiada.<span class="fn">emit(</span><span class="num">50</span><span class="fn">)</span>
+muerto.<span class="fn">emit()</span></code></div>
+  <div class="rf"><div class="d">Conectar</div><code>$Boton.pressed.<span class="fn">connect(</span>_on_pressed<span class="fn">)</span>
+señal.<span class="fn">connect(</span><span class="kw">func</span>(): print(<span class="str">"tick"</span>)<span class="fn">)</span></code></div>
+  <div class="rf"><div class="d">Desconectar / una vez</div><code>señal.<span class="fn">disconnect(</span>fn<span class="fn">)</span>
+señal.<span class="fn">connect(</span>fn, <span class="ty2">CONNECT_ONE_SHOT</span><span class="fn">)</span></code></div>
+  <div class="rf"><div class="d">Await señal (async)</div><code><span class="kw">await</span> muerto
+<span class="kw">await</span> $Timer.timeout
+<span class="kw">await</span> <span class="fn">get_tree()</span>.<span class="fn">create_timer(</span><span class="num">2.0</span><span class="fn">)</span>.timeout</code></div>
+  <div class="rf"><div class="d">Está conectada</div><code>señal.<span class="fn">is_connected(</span>fn<span class="fn">)</span>
+señal.<span class="fn">get_connections()</span></code></div>
+</div>
+
+</div>
+
+<div class="st">Matemáticas</div>
+<div class="grid">
+
+<div class="card" data-s="math matematicas abs clamp lerp pow sqrt random pi sin cos tan deg rad snap move_toward">
+  <div class="ch"><span class="ctit">Funciones Matemáticas</span><span class="tag ty">MATH</span></div>
+  <div class="row"><div class="rl">abs</div><div class="rc"><span class="fn">abs(</span>-5<span class="fn">)</span> → 5</div></div>
+  <div class="row"><div class="rl">round / floor / ceil</div><div class="rc"><span class="fn">round / floor / ceil(</span>val<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">clamp</div><div class="rc"><span class="fn">clamp(</span>val, min, max<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">clamp (tipado)</div><div class="rc"><span class="fn">clampf / clampi(</span>v, mn, mx<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">lerp</div><div class="rc"><span class="fn">lerp(</span>a, b, t<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">lerp_angle</div><div class="rc"><span class="fn">lerp_angle(</span>a, b, t<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">inverse_lerp</div><div class="rc"><span class="fn">inverse_lerp(</span>a, b, val<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">remap</div><div class="rc"><span class="fn">remap(</span>v, i0,i1, o0,o1<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">pow / sqrt / log</div><div class="rc"><span class="fn">pow(</span>2,8<span class="fn">)</span> · <span class="fn">sqrt(</span>16<span class="fn">)</span> · <span class="fn">log(</span>x<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">sin / cos / tan</div><div class="rc"><span class="fn">sin / cos / tan(</span>rad<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">asin / acos / atan</div><div class="rc"><span class="fn">asin / acos / atan(</span>x<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">atan2</div><div class="rc"><span class="fn">atan2(</span>y, x<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">random float [0,1]</div><div class="rc"><span class="fn">randf()</span></div></div>
+  <div class="row"><div class="rl">random int</div><div class="rc"><span class="fn">randi()</span></div></div>
+  <div class="row"><div class="rl">rango float</div><div class="rc"><span class="fn">randf_range(</span>0.5, 1.5<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">rango int</div><div class="rc"><span class="fn">randi_range(</span>1, 6<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">seed</div><div class="rc"><span class="fn">seed(</span><span class="num">42</span><span class="fn">)</span> · <span class="fn">randomize()</span></div></div>
+  <div class="row"><div class="rl">PI / TAU / INF / NAN</div><div class="rc"><span class="ty2">PI</span> · <span class="ty2">TAU</span> · <span class="ty2">INF</span> · <span class="ty2">NAN</span></div></div>
+  <div class="row"><div class="rl">deg_to_rad</div><div class="rc"><span class="fn">deg_to_rad(</span>90<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">rad_to_deg</div><div class="rc"><span class="fn">rad_to_deg(</span><span class="ty2">PI</span><span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">sign</div><div class="rc"><span class="fn">sign(</span>-5<span class="fn">)</span> → -1</div></div>
+  <div class="row"><div class="rl">smoothstep</div><div class="rc"><span class="fn">smoothstep(</span>0, 1, t<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">snapped</div><div class="rc"><span class="fn">snapped(</span>val, step<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">move_toward</div><div class="rc"><span class="fn">move_toward(</span>cur, to, delta<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">max / min</div><div class="rc"><span class="fn">max(</span>a, b<span class="fn">)</span> · <span class="fn">min(</span>a, b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">maxf/minf/maxi/mini</div><div class="rc"><span class="fn">maxf(</span>a,b<span class="fn">)</span> · <span class="fn">mini(</span>a,b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">is_nan / is_inf</div><div class="rc"><span class="fn">is_nan(</span>x<span class="fn">)</span> · <span class="fn">is_inf(</span>x<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">is_equal_approx</div><div class="rc"><span class="fn">is_equal_approx(</span>a, b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">is_zero_approx</div><div class="rc"><span class="fn">is_zero_approx(</span>x<span class="fn">)</span></div></div>
+</div>
+
+<div class="card" data-s="vector2 vector3 length normalized lerp dot cross angle rotated project">
+  <div class="ch"><span class="ctit">Vector2 / Vector3</span><span class="tag tb2">VEC</span></div>
+  <div class="row"><div class="rl">longitud</div><div class="rc">v.<span class="fn">length()</span></div></div>
+  <div class="row"><div class="rl">longitud²</div><div class="rc">v.<span class="fn">length_squared()</span></div></div>
+  <div class="row"><div class="rl">normalizar</div><div class="rc">v.<span class="fn">normalized()</span></div></div>
+  <div class="row"><div class="rl">distancia</div><div class="rc">v.<span class="fn">distance_to(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">distancia²</div><div class="rc">v.<span class="fn">distance_squared_to(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">dirección hacia</div><div class="rc">v.<span class="fn">direction_to(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">dot product</div><div class="rc">v.<span class="fn">dot(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">cross product (3D)</div><div class="rc">v.<span class="fn">cross(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">ángulo (2D)</div><div class="rc">v.<span class="fn">angle()</span></div></div>
+  <div class="row"><div class="rl">ángulo hacia</div><div class="rc">v.<span class="fn">angle_to(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">rotar</div><div class="rc">v.<span class="fn">rotated(</span>angulo<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">lerp</div><div class="rc">v.<span class="fn">lerp(</span>b, t<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">reflect</div><div class="rc">v.<span class="fn">reflect(</span>normal<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">proyectar</div><div class="rc">v.<span class="fn">project(</span>b<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">move_toward</div><div class="rc">v.<span class="fn">move_toward(</span>to, d<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">clamp</div><div class="rc">v.<span class="fn">clamp(</span>min, max<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">abs</div><div class="rc">v.<span class="fn">abs()</span></div></div>
+  <div class="row"><div class="rl">sign</div><div class="rc">v.<span class="fn">sign()</span></div></div>
+  <div class="row"><div class="rl">floor / ceil / round</div><div class="rc">v.<span class="fn">floor()</span> · v.<span class="fn">ceil()</span> · v.<span class="fn">round()</span></div></div>
+  <div class="row"><div class="rl">is_zero_approx</div><div class="rc">v.<span class="fn">is_zero_approx()</span></div></div>
+  <div class="row"><div class="rl">snapped</div><div class="rc">v.<span class="fn">snapped(</span>step<span class="fn">)</span></div></div>
+  <div class="row"><div class="rl">Constantes 2D</div><div class="rc"><span class="ty2">ZERO · ONE · UP · DOWN · LEFT · RIGHT · INF</span></div></div>
+  <div class="row"><div class="rl">Constantes 3D</div><div class="rc"><span class="ty2">ZERO · ONE · UP · DOWN · FORWARD · BACK · LEFT · RIGHT</span></div></div>
+</div>
+
+</div>
+
+<div class="st">Async / Await y Debug</div>
+<div class="grid gw">
+
+<div class="card" data-s="await async signal corutina yield timer frame">
+  <div class="ch"><span class="ctit">Async / Await</span><span class="tag tp">ASYNC</span></div>
+  <div class="rf"><div class="d">Esperar señal</div><code><span class="kw">await</span> señal_cualquiera
+<span class="kw">await</span> $Boton.pressed
+<span class="kw">await</span> $AnimPlayer.animation_finished</code></div>
+  <div class="rf"><div class="d">Esperar tiempo</div><code><span class="kw">await</span> <span class="fn">get_tree()</span>.<span class="fn">create_timer(</span><span class="num">2.0</span><span class="fn">)</span>.timeout</code></div>
+  <div class="rf"><div class="d">Esperar frame</div><code><span class="kw">await</span> <span class="fn">get_tree()</span>.process_frame
+<span class="kw">await</span> <span class="fn">get_tree()</span>.physics_frame</code></div>
+  <div class="rf"><div class="d">Función con await (es automáticamente async)</div><code><span class="kw">func</span> <span class="fn">aparecer()</span>:
+    modulate.a = <span class="num">0.0</span>
+    <span class="kw">await</span> <span class="fn">get_tree()</span>.<span class="fn">create_timer(</span><span class="num">1.0</span><span class="fn">)</span>.timeout
+    modulate.a = <span class="num">1.0</span></code></div>
+  <div class="rf"><div class="d">Capturar valor devuelto</div><code><span class="kw">var</span> resultado = <span class="kw">await</span> mi_señal_con_valor</code></div>
+</div>
+
+<div class="card" data-s="debug print assert error warning stack breakpoint">
+  <div class="ch"><span class="ctit">Debug y Utilidades</span><span class="tag tr">DEBUG</span></div>
+  <div class="rf"><div class="d">Print</div><code>print(a, b, c)          <span class="cmt"># stdout</span>
+printerr(<span class="str">"error"</span>)        <span class="cmt"># stderr rojo</span>
+printraw(<span class="str">"sin newline"</span>)
+print_rich(<span class="str">"[b]negrita[/b] [color=red]rojo[/color]"</span>)</code></div>
+  <div class="rf"><div class="d">Assert</div><code>assert(vida > <span class="num">0</span>)
+assert(vida > <span class="num">0</span>, <span class="str">"vida debe ser positiva"</span>)</code></div>
+  <div class="rf"><div class="d">Warnings y errores</div><code>push_warning(<span class="str">"cuidado"</span>)
+push_error(<span class="str">"algo salió mal"</span>)</code></div>
+  <div class="rf"><div class="d">Stack trace / debug info</div><code>print_stack()
+print_debug(val)        <span class="cmt"># + archivo y línea</span>
+<span class="fn">get_stack()</span>             <span class="cmt"># array con info</span></code></div>
+  <div class="rf"><div class="d">Breakpoint en código</div><code>breakpoint  <span class="cmt"># pausa el debugger aquí</span></code></div>
+  <div class="rf"><div class="d">Tiempo</div><code><span class="ty2">Time</span>.<span class="fn">get_ticks_msec()</span>   <span class="cmt"># ms desde inicio</span>
+<span class="ty2">Time</span>.<span class="fn">get_ticks_usec()</span>   <span class="cmt"># microsegundos</span>
+<span class="ty2">Time</span>.<span class="fn">get_unix_time_from_system()</span></code></div>
+</div>
+
+</div>
+
+</div><!-- /content -->
+<script>
+function search() {
+  const q = document.getElementById('q').value.toLowerCase().trim();
+  document.querySelectorAll('.card').forEach(c => {
+    const txt = (c.textContent + ' ' + (c.dataset.s || '')).toLowerCase();
+    c.classList.toggle('hide', q.length > 0 && !txt.includes(q));
+  });
+}
+</script>
+</body>
+</html>
