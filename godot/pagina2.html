@@ -1,0 +1,2443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Completa de GDScript 4</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e1017;
+  --surface: #161b24;
+  --border: #252d3d;
+  --border2: #2e3a50;
+  --text: #e2e8f5;
+  --muted: #7a8aaa;
+  --dim: #3d4f6a;
+
+  --blue: #4d9aff;
+  --blue-bg: #0d1f3d;
+  --blue-bd: #1a3a6e;
+
+  --green: #3dd68c;
+  --green-bg: #0a2318;
+  --green-bd: #15472e;
+
+  --orange: #ff9a4d;
+  --orange-bg: #2a1a08;
+  --orange-bd: #5a3510;
+
+  --red: #ff6b6b;
+  --red-bg: #2a0f0f;
+  --red-bd: #5a1e1e;
+
+  --purple: #b57aff;
+  --purple-bg: #1a0e30;
+  --purple-bd: #3d1f6e;
+
+  --teal: #2dd4c8;
+  --teal-bg: #081e1c;
+  --teal-bd: #103d38;
+
+  --code-bg: #0a0d14;
+  --code-kw: #ff6b6b;
+  --code-fn: #3dd68c;
+  --code-st: #ffc56b;
+  --code-nu: #6bb5ff;
+  --code-cl: #c49bff;
+  --code-cm: #3d4f6a;
+  --code-op: #5a6e8a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  height: 56px;
+  background: rgba(14,16,23,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 20px;
+}
+
+.logo {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-dot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  background: var(--blue);
+  display: inline-block;
+}
+
+.topnav {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+.topnav::-webkit-scrollbar { display: none; }
+
+.tnav {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  font-family: 'Sora', sans-serif;
+  transition: all 0.15s;
+}
+.tnav:hover { color: var(--text); background: var(--border); }
+.tnav.active { color: var(--blue); background: var(--blue-bg); }
+
+/* ── LAYOUT ── */
+.layout {
+  display: flex;
+  padding-top: 56px;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 20px 0 40px;
+  scrollbar-width: thin;
+}
+
+.sg { /* sidebar group label */
+  padding: 16px 20px 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.sl { /* sidebar link */
+  display: block;
+  padding: 7px 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+}
+.sl:hover { color: var(--text); border-left-color: var(--border2); }
+.sl.active { color: var(--blue); border-left-color: var(--blue); font-weight: 600; }
+.sl .tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  padding: 40px 48px 100px;
+  max-width: 900px;
+}
+
+/* ── HERO ── */
+.hero {
+  margin-bottom: 60px;
+  padding: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(77,154,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-bd);
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+  letter-spacing: -1px;
+}
+.hero h1 span { color: var(--blue); }
+.hero p {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 520px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.hero-pill {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--bg);
+}
+
+/* ── SECTION ── */
+.section { margin-bottom: 64px; }
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+}
+
+.section-num {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--dim);
+  padding-top: 6px;
+  min-width: 32px;
+}
+
+.section-info h2 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.section-info p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.card-head-text h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.card-head-text p {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.card-body { padding: 22px; }
+
+/* ── CODE ── */
+pre, .code {
+  background: var(--code-bg);
+  border-radius: 10px;
+  padding: 18px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.85;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.kw  { color: var(--code-kw); font-weight: 600; }
+.fn  { color: var(--code-fn); }
+.st  { color: var(--code-st); }
+.nu  { color: var(--code-nu); }
+.cl  { color: var(--code-cl); }
+.cm  { color: var(--code-cm); font-style: italic; }
+.op  { color: var(--code-op); }
+.va  { color: var(--text); }
+.an  { color: var(--teal); }   /* annotations */
+
+/* ── TABLE ── */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+.tbl thead tr {
+  background: var(--bg);
+}
+.tbl th {
+  padding: 9px 16px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  border-bottom: 1px solid var(--border);
+}
+.tbl td {
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--bg); }
+.tbl code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.79rem;
+  color: var(--code-fn);
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.tbl .desc { color: var(--muted); }
+.tbl .ex { color: var(--dim); font-size: 0.75rem; font-style: italic; }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  border-left: 3px solid;
+}
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.callout-text strong { display: block; margin-bottom: 2px; font-weight: 700; }
+
+.callout-blue   { background: var(--blue-bg);   border-color: var(--blue);   color: #133acc; }
+.callout-blue strong { color: var(--blue); }
+.callout-green  { background: var(--green-bg);  border-color: var(--green);  color: #0a5c2f; }
+.callout-green strong { color: var(--green); }
+.callout-orange { background: var(--orange-bg); border-color: var(--orange); color: #8a3800; }
+.callout-orange strong { color: var(--orange); }
+.callout-red    { background: var(--red-bg);    border-color: var(--red);    color: #8a100a; }
+.callout-red strong { color: var(--red); }
+.callout-purple { background: var(--purple-bg); border-color: var(--purple); color: #4d1899; }
+.callout-purple strong { color: var(--purple); }
+.callout-teal   { background: var(--teal-bg);   border-color: var(--teal);   color: #065650; }
+.callout-teal strong { color: var(--teal); }
+
+/* ── INLINE CODE ── */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82em;
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--code-fn);
+}
+
+/* ── TWO COL ── */
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cols3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+.badge-green  { background: var(--green-bg);  color: var(--green); }
+.badge-orange { background: var(--orange-bg); color: var(--orange); }
+.badge-red    { background: var(--red-bg);    color: var(--red); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+.badge-teal   { background: var(--teal-bg);   color: var(--teal); }
+
+/* ── ICON COLORS ── */
+.icon-blue   { background: var(--blue-bg);   }
+.icon-green  { background: var(--green-bg);  }
+.icon-orange { background: var(--orange-bg); }
+.icon-red    { background: var(--red-bg);    }
+.icon-purple { background: var(--purple-bg); }
+.icon-teal   { background: var(--teal-bg);   }
+
+/* ── SEPARATOR ── */
+.sep { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── COMPARE ── */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+.compare-col { padding: 14px 16px; }
+.compare-col:first-child { border-right: 1px solid var(--border); }
+.compare-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── STEP LIST ── */
+.steps { counter-reset: step; }
+.step {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.step-num {
+  counter-increment: step;
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: var(--blue-bg);
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.step-num::before { content: counter(step); }
+.step-content h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
+.step-content p { font-size: 0.82rem; color: var(--muted); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1000px) {
+  .sidebar { display: none; }
+  .main { max-width: 100%; padding: 28px 20px 80px; }
+}
+@media (max-width: 640px) {
+  .cols2, .cols3 { grid-template-columns: 1fr; }
+  .compare { grid-template-columns: 1fr; }
+  .compare-col:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .hero { padding: 28px 20px; }
+  .hero h1 { font-size: 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo"><span class="logo-dot"></span>GDScript 4</div>
+  <nav class="topnav">
+    <button class="tnav active" onclick="navTo('intro')">Inicio</button>
+    <button class="tnav" onclick="navTo('variables')">Variables</button>
+    <button class="tnav" onclick="navTo('funciones')">Funciones</button>
+    <button class="tnav" onclick="navTo('control')">Control</button>
+    <button class="tnav" onclick="navTo('strings')">Strings</button>
+    <button class="tnav" onclick="navTo('arrays')">Arrays</button>
+    <button class="tnav" onclick="navTo('dicts')">Diccionarios</button>
+    <button class="tnav" onclick="navTo('clases')">Clases</button>
+    <button class="tnav" onclick="navTo('nodos')">Nodos</button>
+    <button class="tnav" onclick="navTo('senales')">Señales</button>
+    <button class="tnav" onclick="navTo('input')">Input</button>
+    <button class="tnav" onclick="navTo('math')">Math</button>
+    <button class="tnav" onclick="navTo('vectores')">Vectores</button>
+    <button class="tnav" onclick="navTo('escenas')">Escenas</button>
+    <button class="tnav" onclick="navTo('tiempo')">Tiempo</button>
+    <button class="tnav" onclick="navTo('debug')">Debug</button>
+  </nav>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sg">Introducción</div>
+  <a class="sl" href="#intro">¿Qué es GDScript?</a>
+  <a class="sl" href="#estructura">Estructura del script</a>
+  <div class="sg">Datos</div>
+  <a class="sl" href="#variables">Variables & Tipos</a>
+  <a class="sl" href="#strings">Strings</a>
+  <a class="sl" href="#arrays">Arrays</a>
+  <a class="sl" href="#dicts">Diccionarios</a>
+  <div class="sg">Lógica</div>
+  <a class="sl" href="#funciones">Funciones</a>
+  <a class="sl" href="#control">Control de flujo</a>
+  <a class="sl" href="#clases">Clases & Herencia</a>
+  <div class="sg">Motor</div>
+  <a class="sl" href="#nodos">Nodos</a>
+  <a class="sl" href="#senales">Señales</a>
+  <a class="sl" href="#input">Input</a>
+  <a class="sl" href="#escenas">Escenas</a>
+  <a class="sl" href="#tiempo">Tiempo & Timers</a>
+  <div class="sg">Utilidades</div>
+  <a class="sl" href="#math">Matemáticas</a>
+  <a class="sl" href="#vectores">Vectores</a>
+  <a class="sl" href="#debug">Debug</a>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ════════════════ HERO ════════════════ -->
+<div class="hero" id="intro">
+  <div class="hero-badge">🎮 Documentación Completa</div>
+  <h1>Guía de <span>GDScript 4</span></h1>
+  <p>Todo lo que necesitas saber sobre el lenguaje de scripting de Godot 4. Cada concepto explicado paso a paso, con ejemplos prácticos y notas importantes.</p>
+  <div class="hero-pills">
+    <div class="hero-pill">📄 Variables & Tipos</div>
+    <div class="hero-pill">⚙️ Funciones</div>
+    <div class="hero-pill">🔀 Control de flujo</div>
+    <div class="hero-pill">🌳 Nodos</div>
+    <div class="hero-pill">📡 Señales</div>
+    <div class="hero-pill">🎯 Input</div>
+    <div class="hero-pill">🧮 Math & Vectores</div>
+  </div>
+</div>
+
+<!-- ════════════════ QUÉ ES GDSCRIPT ════════════════ -->
+<section class="section" id="estructura">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div class="section-info">
+      <h2>Estructura de un Script</h2>
+      <p>Todo script en Godot sigue el mismo patrón base. Aquí aprenderás cómo está organizado y cuáles son las funciones especiales que Godot llama automáticamente.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">📄</div>
+      <div class="card-head-text">
+        <h3>Estructura básica completa</h3>
+        <p>Un script completo con todos sus elementos principales, en el orden correcto.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># 1. Herencia: indica de qué tipo de nodo es este script</span>
+<span class="kw">extends</span> <span class="cl">CharacterBody2D</span>
+
+<span class="cm"># 2. Nombre de clase (opcional, permite usar este script como tipo en otros)</span>
+<span class="kw">class_name</span> <span class="cl">Jugador</span>
+
+<span class="cm"># 3. Señales propias (se emiten desde este script)</span>
+<span class="kw">signal</span> <span class="va">vida_cambio</span><span class="op">(</span><span class="va">nueva_vida</span><span class="op">:</span> <span class="cl">int</span><span class="op">)</span>
+
+<span class="cm"># 4. Constantes (valores que nunca cambian)</span>
+<span class="kw">const</span> <span class="va">VELOCIDAD_MAX</span> <span class="op">=</span> <span class="nu">400.0</span>
+
+<span class="cm"># 5. Variables exportadas (aparecen en el Inspector de Godot)</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">velocidad</span><span class="op">:</span> <span class="cl">float</span> <span class="op">=</span> <span class="nu">200.0</span>
+
+<span class="cm"># 6. Variables normales del script</span>
+<span class="kw">var</span> <span class="va">vida</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">100</span>
+<span class="kw">var</span> <span class="va">esta_vivo</span><span class="op">:</span> <span class="cl">bool</span> <span class="op">=</span> <span class="kw">true</span>
+
+<span class="cm"># 7. Referencias a nodos hijos (se asignan cuando el nodo entra a la escena)</span>
+<span class="an">@onready</span> <span class="kw">var</span> <span class="va">sprite</span> <span class="op">=</span> <span class="op">$</span><span class="cl">Sprite2D</span>
+<span class="an">@onready</span> <span class="kw">var</span> <span class="va">anim</span> <span class="op">=</span> <span class="op">$</span><span class="cl">AnimationPlayer</span>
+
+<span class="cm"># 8. Función _ready: se ejecuta UNA VEZ cuando el nodo entra a la escena</span>
+<span class="kw">func</span> <span class="fn">_ready</span><span class="op">():</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"¡Jugador listo!"</span><span class="op">)</span>
+
+<span class="cm"># 9. Función _process: se ejecuta CADA FRAME (para lógica visual, UI, etc.)</span>
+<span class="kw">func</span> <span class="fn">_process</span><span class="op">(</span><span class="va">delta</span><span class="op">:</span> <span class="cl">float</span><span class="op">):</span>
+    <span class="cm"># delta = tiempo en segundos desde el frame anterior (ej: 0.016 a 60fps)</span>
+    <span class="kw">pass</span>
+
+<span class="cm"># 10. _physics_process: igual que _process pero sincronizado con la física</span>
+<span class="kw">func</span> <span class="fn">_physics_process</span><span class="op">(</span><span class="va">delta</span><span class="op">:</span> <span class="cl">float</span><span class="op">):</span>
+    <span class="fn">move_and_slide</span><span class="op">()</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">💡</span>
+    <div class="callout-text">
+      <strong>¿Qué es <code>delta</code>?</strong>
+      Es el tiempo en segundos que pasó desde el frame anterior. Al multiplicar la velocidad por <code>delta</code>, el movimiento se ve igual sin importar los FPS del jugador. Por ejemplo: <code>position.x += 200 * delta</code> moverá 200 píxeles por segundo, no 200 por frame.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-green">🔁</div>
+      <div class="card-head-text">
+        <h3>Todas las funciones del ciclo de vida</h3>
+        <p>Godot llama estas funciones automáticamente en distintos momentos del juego.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Función</th><th>Cuándo se llama</th><th>Uso típico</th></tr></thead>
+        <tbody>
+          <tr><td><code>_ready()</code></td><td class="desc">Una vez, al entrar a la escena</td><td class="desc">Inicializar variables, conectar señales</td></tr>
+          <tr><td><code>_process(delta)</code></td><td class="desc">Cada frame (variable)</td><td class="desc">UI, animaciones, lógica no física</td></tr>
+          <tr><td><code>_physics_process(delta)</code></td><td class="desc">Cada tick de física (fijo, 60/s por defecto)</td><td class="desc">Movimiento, colisiones, física</td></tr>
+          <tr><td><code>_input(event)</code></td><td class="desc">Cuando llega cualquier evento de input</td><td class="desc">Capturar teclas, mouse, gamepad</td></tr>
+          <tr><td><code>_unhandled_input(event)</code></td><td class="desc">Input que ningún nodo anterior procesó</td><td class="desc">Input global (cámara, pausa)</td></tr>
+          <tr><td><code>_gui_input(event)</code></td><td class="desc">Input sobre un nodo Control</td><td class="desc">Botones e interfaces personalizadas</td></tr>
+          <tr><td><code>_draw()</code></td><td class="desc">Cuando el nodo necesita dibujarse</td><td class="desc">Dibujo personalizado (líneas, círculos)</td></tr>
+          <tr><td><code>_notification(what)</code></td><td class="desc">Al recibir una notificación del motor</td><td class="desc">Pausa, cambio de visibilidad, foco</td></tr>
+          <tr><td><code>_exit_tree()</code></td><td class="desc">Cuando el nodo sale de la escena</td><td class="desc">Limpiar recursos, guardar estado</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ VARIABLES ════════════════ -->
+<section class="section" id="variables">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <div class="section-info">
+      <h2>Variables & Tipos de Datos</h2>
+      <p>Las variables son contenedores que guardan información. GDScript 4 tiene tipado estático opcional — lo cual hace tu código más rápido y seguro.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🏷️</div>
+      <div class="card-head-text">
+        <h3>Declarar variables</h3>
+        <p>Puedes declarar variables con o sin tipo. Usar tipos es recomendado.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="compare">
+        <div class="compare-col">
+          <div class="compare-label"><span class="badge badge-orange">Sin tipo</span> Inferido</div>
+          <pre style="background:none;padding:0;border-radius:0">
+<span class="kw">var</span> <span class="va">nombre</span> <span class="op">=</span> <span class="st">"Aria"</span>
+<span class="kw">var</span> <span class="va">nivel</span> <span class="op">=</span> <span class="nu">5</span>
+<span class="kw">var</span> <span class="va">activo</span> <span class="op">=</span> <span class="kw">true</span>
+</pre>
+        </div>
+        <div class="compare-col">
+          <div class="compare-label"><span class="badge badge-green">Con tipo</span> Recomendado</div>
+          <pre style="background:none;padding:0;border-radius:0">
+<span class="kw">var</span> <span class="va">nombre</span><span class="op">:</span> <span class="cl">String</span> <span class="op">=</span> <span class="st">"Aria"</span>
+<span class="kw">var</span> <span class="va">nivel</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">5</span>
+<span class="kw">var</span> <span class="va">activo</span><span class="op">:</span> <span class="cl">bool</span> <span class="op">=</span> <span class="kw">true</span>
+</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">📊</div>
+      <div class="card-head-text">
+        <h3>Todos los tipos de datos</h3>
+        <p>Los tipos básicos que GDScript maneja nativamente.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Tipo</th><th>Descripción</th><th>Ejemplos</th></tr></thead>
+        <tbody>
+          <tr><td><code>int</code></td><td class="desc">Número entero (sin decimales)</td><td class="ex">42 · -7 · 0xFF · 0b1010 · 1_000_000</td></tr>
+          <tr><td><code>float</code></td><td class="desc">Número decimal (punto flotante)</td><td class="ex">3.14 · -0.5 · 1.0e6 · INF</td></tr>
+          <tr><td><code>bool</code></td><td class="desc">Verdadero o falso</td><td class="ex">true · false</td></tr>
+          <tr><td><code>String</code></td><td class="desc">Cadena de texto</td><td class="ex">"hola" · 'mundo' · """multilinea"""</td></tr>
+          <tr><td><code>StringName</code></td><td class="desc">String optimizado para comparaciones frecuentes</td><td class="ex">&"saltar" · &"enemigo"</td></tr>
+          <tr><td><code>Vector2</code></td><td class="desc">Par de floats (x, y) — posición 2D</td><td class="ex">Vector2(10.0, 5.0)</td></tr>
+          <tr><td><code>Vector3</code></td><td class="desc">Trío de floats (x, y, z) — posición 3D</td><td class="ex">Vector3(1, 0, 0)</td></tr>
+          <tr><td><code>Color</code></td><td class="desc">Color con alfa (rojo, verde, azul, alpha)</td><td class="ex">Color(1,0,0) · Color.RED</td></tr>
+          <tr><td><code>Rect2</code></td><td class="desc">Rectángulo 2D (posición + tamaño)</td><td class="ex">Rect2(0, 0, 100, 50)</td></tr>
+          <tr><td><code>Array</code></td><td class="desc">Lista de elementos</td><td class="ex">[1, 2, "tres"]</td></tr>
+          <tr><td><code>Dictionary</code></td><td class="desc">Mapa clave → valor</td><td class="ex">{"vida": 100, "nombre": "Aria"}</td></tr>
+          <tr><td><code>NodePath</code></td><td class="desc">Ruta a un nodo dentro del árbol de escena</td><td class="ex">^"Player/Sprite2D"</td></tr>
+          <tr><td><code>Callable</code></td><td class="desc">Referencia a una función</td><td class="ex">Callable(obj, "metodo")</td></tr>
+          <tr><td><code>Variant</code></td><td class="desc">Cualquier tipo (sin tipado)</td><td class="ex">var x (sin especificar tipo)</td></tr>
+          <tr><td><code>null</code></td><td class="desc">Ausencia de valor</td><td class="ex">var ref: Node = null</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">🔒</div>
+      <div class="card-head-text">
+        <h3>Constantes y Enums</h3>
+        <p>Las constantes son valores que no cambian nunca. Los enums son conjuntos de constantes con nombre.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Constante — su valor no puede cambiar</span>
+<span class="kw">const</span> <span class="va">MAX_VIDA</span> <span class="op">=</span> <span class="nu">100</span>
+<span class="kw">const</span> <span class="va">GRAVEDAD</span> <span class="op">=</span> <span class="nu">980.0</span>
+<span class="kw">const</span> <span class="va">NOMBRE_JUEGO</span> <span class="op">=</span> <span class="st">"Mi Aventura"</span>
+
+<span class="cm"># Enum sin nombre (constantes globales del script)</span>
+<span class="kw">enum</span> <span class="op">{</span> <span class="va">NORTE</span><span class="op">,</span> <span class="va">SUR</span><span class="op">,</span> <span class="va">ESTE</span><span class="op">,</span> <span class="va">OESTE</span> <span class="op">}</span>  <span class="cm"># NORTE=0, SUR=1, ESTE=2, OESTE=3</span>
+
+<span class="cm"># Enum con nombre (requiere prefijo para acceder)</span>
+<span class="kw">enum</span> <span class="cl">Estado</span> <span class="op">{</span> <span class="va">IDLE</span><span class="op">,</span> <span class="va">CORRIENDO</span><span class="op">,</span> <span class="va">SALTANDO</span><span class="op">,</span> <span class="va">ATACANDO</span><span class="op">,</span> <span class="va">MUERTO</span> <span class="op">}</span>
+
+<span class="cm"># Enum con valores personalizados (útil para flags de bits)</span>
+<span class="kw">enum</span> <span class="cl">Capas</span> <span class="op">{</span> <span class="va">SUELO</span> <span class="op">=</span> <span class="nu">1</span><span class="op">,</span> <span class="va">ENEMIGOS</span> <span class="op">=</span> <span class="nu">2</span><span class="op">,</span> <span class="va">PROYECTILES</span> <span class="op">=</span> <span class="nu">4</span><span class="op">,</span> <span class="va">JUGADOR</span> <span class="op">=</span> <span class="nu">8</span> <span class="op">}</span>
+
+<span class="cm"># Usar el enum</span>
+<span class="kw">var</span> <span class="va">estado_actual</span><span class="op">:</span> <span class="cl">Estado</span> <span class="op">=</span> <span class="cl">Estado</span><span class="op">.</span><span class="va">IDLE</span>
+
+<span class="cm"># Ver todos los nombres/valores del enum</span>
+<span class="fn">print</span><span class="op">(</span><span class="cl">Estado</span><span class="op">.</span><span class="fn">keys</span><span class="op">())</span>    <span class="cm"># ["IDLE", "CORRIENDO", ...]</span>
+<span class="fn">print</span><span class="op">(</span><span class="cl">Estado</span><span class="op">.</span><span class="fn">values</span><span class="op">())</span>  <span class="cm"># [0, 1, 2, 3, 4]</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">🏷️</div>
+      <div class="card-head-text">
+        <h3>Anotaciones de export</h3>
+        <p>Con <code>@export</code> la variable aparece en el Inspector de Godot, permitiendo ajustar valores sin modificar el código.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">vida</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">100</span>                     <span class="cm"># Número entero en inspector</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">nombre</span><span class="op">:</span> <span class="cl">String</span> <span class="op">=</span> <span class="st">"Jugador"</span>          <span class="cm"># Texto en inspector</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">textura</span><span class="op">:</span> <span class="cl">Texture2D</span>                  <span class="cm"># Selector de textura</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">escena_bala</span><span class="op">:</span> <span class="cl">PackedScene</span>             <span class="cm"># Selector de escena (.tscn)</span>
+
+<span class="cm"># Rango: limita el valor entre mínimo y máximo</span>
+<span class="an">@export_range</span><span class="op">(</span><span class="nu">0</span><span class="op">,</span> <span class="nu">100</span><span class="op">)</span> <span class="kw">var</span> <span class="va">escudo</span><span class="op">:</span> <span class="cl">int</span>
+<span class="an">@export_range</span><span class="op">(</span><span class="nu">0.1</span><span class="op">,</span> <span class="nu">10.0</span><span class="op">,</span> <span class="nu">0.1</span><span class="op">)</span> <span class="kw">var</span> <span class="va">escala</span><span class="op">:</span> <span class="cl">float</span>  <span class="cm"># con paso de 0.1</span>
+
+<span class="cm"># Enum: muestra un menú desplegable</span>
+<span class="an">@export_enum</span><span class="op">(</span><span class="st">"Fuego"</span><span class="op">,</span> <span class="st">"Agua"</span><span class="op">,</span> <span class="st">"Tierra"</span><span class="op">)</span> <span class="kw">var</span> <span class="va">elemento</span><span class="op">:</span> <span class="cl">int</span>
+
+<span class="cm"># Archivo y carpeta: selector de ruta</span>
+<span class="an">@export_file</span><span class="op">(</span><span class="st">"*.json"</span><span class="op">)</span> <span class="kw">var</span> <span class="va">config_path</span><span class="op">:</span> <span class="cl">String</span>
+<span class="an">@export_dir</span> <span class="kw">var</span> <span class="va">carpeta_guardado</span><span class="op">:</span> <span class="cl">String</span>
+
+<span class="cm"># Texto multilinea: cuadro de texto grande</span>
+<span class="an">@export_multiline</span> <span class="kw">var</span> <span class="va">descripcion</span><span class="op">:</span> <span class="cl">String</span>
+
+<span class="cm"># Color sin canal alpha</span>
+<span class="an">@export_color_no_alpha</span> <span class="kw">var</span> <span class="va">color_personaje</span><span class="op">:</span> <span class="cl">Color</span>
+
+<span class="cm"># Flags (casillas de verificación múltiple)</span>
+<span class="an">@export_flags</span><span class="op">(</span><span class="st">"Volar"</span><span class="op">,</span> <span class="st">"Nadar"</span><span class="op">,</span> <span class="st">"Trepar"</span><span class="op">)</span> <span class="kw">var</span> <span class="va">habilidades</span><span class="op">:</span> <span class="cl">int</span>
+
+<span class="cm"># Agrupar variables en el Inspector</span>
+<span class="an">@export_group</span><span class="op">(</span><span class="st">"Combate"</span><span class="op">)</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">dano</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">10</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">cadencia</span><span class="op">:</span> <span class="cl">float</span> <span class="op">=</span> <span class="nu">0.5</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-red">🔄</div>
+      <div class="card-head-text">
+        <h3>Conversión de tipos</h3>
+        <p>Cómo transformar un valor de un tipo a otro.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># int ↔ float ↔ String ↔ bool</span>
+<span class="kw">var</span> <span class="va">n</span><span class="op">:</span> <span class="cl">int</span>    <span class="op">=</span> <span class="cl">int</span><span class="op">(</span><span class="st">"42"</span><span class="op">)</span>       <span class="cm"># "42" → 42</span>
+<span class="kw">var</span> <span class="va">f</span><span class="op">:</span> <span class="cl">float</span>  <span class="op">=</span> <span class="cl">float</span><span class="op">(</span><span class="nu">10</span><span class="op">)</span>      <span class="cm"># 10 → 10.0</span>
+<span class="kw">var</span> <span class="va">s</span><span class="op">:</span> <span class="cl">String</span> <span class="op">=</span> <span class="cl">str</span><span class="op">(</span><span class="nu">3.14</span><span class="op">)</span>     <span class="cm"># 3.14 → "3.14"</span>
+<span class="kw">var</span> <span class="va">b</span><span class="op">:</span> <span class="cl">bool</span>   <span class="op">=</span> <span class="cl">bool</span><span class="op">(</span><span class="nu">1</span><span class="op">)</span>       <span class="cm"># 1 → true (0 → false)</span>
+
+<span class="cm"># Verificar el tipo de una variable</span>
+<span class="fn">typeof</span><span class="op">(</span><span class="va">n</span><span class="op">)</span>         <span class="cm"># Retorna una constante TYPE_INT, TYPE_FLOAT, etc.</span>
+<span class="va">n</span> <span class="kw">is</span> <span class="cl">int</span>          <span class="cm"># true si n es de tipo int</span>
+<span class="va">n</span> <span class="kw">is</span> <span class="cl">Node</span>         <span class="cm"># true si n hereda de Node</span>
+
+<span class="cm"># Cast seguro (retorna null si falla, no lanza error)</span>
+<span class="kw">var</span> <span class="va">jugador</span> <span class="op">=</span> <span class="va">nodo</span> <span class="kw">as</span> <span class="cl">Jugador</span>
+<span class="kw">if</span> <span class="va">jugador</span> <span class="op">!=</span> <span class="kw">null</span><span class="op">:</span>
+    <span class="va">jugador</span><span class="op">.</span><span class="fn">atacar</span><span class="op">()</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">⚡</div>
+      <div class="card-head-text">
+        <h3>Variables especiales</h3>
+        <p><code>@onready</code>, <code>static</code> y otras formas de declarar variables.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># @onready: asigna el valor cuando _ready() se ejecuta</span>
+<span class="cm"># Es equivalente a hacer get_node() dentro de _ready()</span>
+<span class="an">@onready</span> <span class="kw">var</span> <span class="va">sprite</span>   <span class="op">=</span> <span class="op">$</span><span class="cl">Sprite2D</span>
+<span class="an">@onready</span> <span class="kw">var</span> <span class="va">colision</span> <span class="op">=</span> <span class="op">$</span><span class="cl">CollisionShape2D</span>
+<span class="an">@onready</span> <span class="kw">var</span> <span class="va">ui_vida</span>  <span class="op">=</span> <span class="op">$</span><span class="cl">UI/BarraVida</span>
+
+<span class="cm"># static var: se comparte entre TODAS las instancias de la clase</span>
+<span class="kw">static</span> <span class="kw">var</span> <span class="va">total_enemigos</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">0</span>
+
+<span class="cm"># Variable con setter y getter personalizados</span>
+<span class="kw">var</span> <span class="va">vida</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">100</span><span class="op">:</span>
+    <span class="kw">set</span><span class="op">(</span><span class="va">nuevo_valor</span><span class="op">):</span>
+        <span class="va">vida</span> <span class="op">=</span> <span class="fn">clamp</span><span class="op">(</span><span class="va">nuevo_valor</span><span class="op">,</span> <span class="nu">0</span><span class="op">,</span> <span class="nu">100</span><span class="op">)</span>  <span class="cm"># limitar entre 0 y 100</span>
+        <span class="va">vida_cambio</span><span class="op">.</span><span class="fn">emit</span><span class="op">(</span><span class="va">vida</span><span class="op">)</span>              <span class="cm"># emitir señal al cambiar</span>
+    <span class="kw">get</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="va">vida</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ FUNCIONES ════════════════ -->
+<section class="section" id="funciones">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <div class="section-info">
+      <h2>Funciones</h2>
+      <p>Las funciones encapsulan código reutilizable. En GDScript son muy versátiles: soportan tipado, valores por defecto, lambdas y corrutinas.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-green">⚙️</div>
+      <div class="card-head-text">
+        <h3>Definir funciones</h3>
+        <p>Todas las formas de declarar una función.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Función básica sin parámetros ni retorno</span>
+<span class="kw">func</span> <span class="fn">saludar</span><span class="op">():</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"¡Hola mundo!"</span><span class="op">)</span>
+
+<span class="cm"># Con parámetros tipados</span>
+<span class="kw">func</span> <span class="fn">mover</span><span class="op">(</span><span class="va">direccion</span><span class="op">:</span> <span class="cl">Vector2</span><span class="op">,</span> <span class="va">velocidad</span><span class="op">:</span> <span class="cl">float</span><span class="op">):</span>
+    <span class="va">position</span> <span class="op">+=</span> <span class="va">direccion</span> <span class="op">*</span> <span class="va">velocidad</span>
+
+<span class="cm"># Con tipo de retorno especificado</span>
+<span class="kw">func</span> <span class="fn">calcular_dano</span><span class="op">(</span><span class="va">base</span><span class="op">:</span> <span class="cl">int</span><span class="op">,</span> <span class="va">critico</span><span class="op">:</span> <span class="cl">bool</span><span class="op">)</span> <span class="op">-></span> <span class="cl">int</span><span class="op">:</span>
+    <span class="kw">if</span> <span class="va">critico</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="va">base</span> <span class="op">*</span> <span class="nu">2</span>
+    <span class="kw">return</span> <span class="va">base</span>
+
+<span class="cm"># Con valor por defecto (parámetro opcional)</span>
+<span class="kw">func</span> <span class="fn">crear_efecto</span><span class="op">(</span><span class="va">pos</span><span class="op">:</span> <span class="cl">Vector2</span><span class="op">,</span> <span class="va">escala</span><span class="op">:</span> <span class="cl">float</span> <span class="op">=</span> <span class="nu">1.0</span><span class="op">,</span> <span class="va">color</span><span class="op">:</span> <span class="cl">Color</span> <span class="op">=</span> <span class="cl">Color</span><span class="op">.</span><span class="va">WHITE</span><span class="op">):</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Efecto en "</span><span class="op">,</span> <span class="va">pos</span><span class="op">)</span>
+
+<span class="cm"># Llamadas con valores por defecto</span>
+<span class="fn">crear_efecto</span><span class="op">(</span><span class="cl">Vector2</span><span class="op">.</span><span class="va">ZERO</span><span class="op">)</span>               <span class="cm"># escala=1.0, color=WHITE</span>
+<span class="fn">crear_efecto</span><span class="op">(</span><span class="cl">Vector2</span><span class="op">.</span><span class="va">ZERO</span><span class="op">,</span> <span class="nu">2.0</span><span class="op">)</span>          <span class="cm"># escala=2.0, color=WHITE</span>
+<span class="fn">crear_efecto</span><span class="op">(</span><span class="cl">Vector2</span><span class="op">.</span><span class="va">ZERO</span><span class="op">,</span> <span class="nu">1.0</span><span class="op">,</span> <span class="cl">Color</span><span class="op">.</span><span class="va">RED</span><span class="op">)</span>  <span class="cm"># todo especificado</span>
+
+<span class="cm"># Función estática (no necesita instancia, no tiene acceso a "self")</span>
+<span class="kw">static</span> <span class="kw">func</span> <span class="fn">calcular_distancia</span><span class="op">(</span><span class="va">a</span><span class="op">:</span> <span class="cl">Vector2</span><span class="op">,</span> <span class="va">b</span><span class="op">:</span> <span class="cl">Vector2</span><span class="op">)</span> <span class="op">-></span> <span class="cl">float</span><span class="op">:</span>
+    <span class="kw">return</span> <span class="va">a</span><span class="op">.</span><span class="fn">distance_to</span><span class="op">(</span><span class="va">b</span><span class="op">)</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <span class="callout-icon">✅</span>
+    <div class="callout-text">
+      <strong>Tip: siempre especifica el tipo de retorno</strong>
+      Escribir <code>-> int</code>, <code>-> String</code>, <code>-> void</code> ayuda a Godot a detectar errores antes de ejecutar el juego y hace tu código más fácil de leer.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">λ</div>
+      <div class="card-head-text">
+        <h3>Funciones Lambda y Callables</h3>
+        <p>Las lambdas son funciones anónimas que puedes guardar en variables o pasar como argumento.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Lambda básica — función sin nombre guardada en variable</span>
+<span class="kw">var</span> <span class="va">doble</span> <span class="op">=</span> <span class="kw">func</span><span class="op">(</span><span class="va">n</span><span class="op">:</span> <span class="cl">int</span><span class="op">)</span> <span class="op">-></span> <span class="cl">int</span><span class="op">:</span>
+    <span class="kw">return</span> <span class="va">n</span> <span class="op">*</span> <span class="nu">2</span>
+
+<span class="fn">print</span><span class="op">(</span><span class="va">doble</span><span class="op">.</span><span class="fn">call</span><span class="op">(</span><span class="nu">5</span><span class="op">))</span>  <span class="cm"># → 10</span>
+
+<span class="cm"># Callable: referencia a un método existente</span>
+<span class="kw">var</span> <span class="va">cb</span><span class="op">:</span> <span class="cl">Callable</span> <span class="op">=</span> <span class="fn">saludar</span>   <span class="cm"># referencia a func saludar()</span>
+<span class="va">cb</span><span class="op">.</span><span class="fn">call</span><span class="op">()</span>                    <span class="cm"># ejecutar</span>
+
+<span class="cm"># bind(): pre-fijar argumentos</span>
+<span class="kw">func</span> <span class="fn">sumar</span><span class="op">(</span><span class="va">a</span><span class="op">:</span><span class="cl">int</span><span class="op">,</span> <span class="va">b</span><span class="op">:</span><span class="cl">int</span><span class="op">)</span> <span class="op">-></span> <span class="cl">int</span><span class="op">:</span> <span class="kw">return</span> <span class="va">a</span> <span class="op">+</span> <span class="va">b</span>
+
+<span class="kw">var</span> <span class="va">suma5</span> <span class="op">=</span> <span class="fn">sumar</span><span class="op">.</span><span class="fn">bind</span><span class="op">(</span><span class="nu">5</span><span class="op">)</span>   <span class="cm"># "sumar con a=5"</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">suma5</span><span class="op">.</span><span class="fn">call</span><span class="op">(</span><span class="nu">3</span><span class="op">))</span>         <span class="cm"># → 8 (5 + 3)</span>
+
+<span class="cm"># Muy útil al conectar señales con datos extra</span>
+<span class="va">boton</span><span class="op">.</span><span class="va">pressed</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_al_presionar</span><span class="op">.</span><span class="fn">bind</span><span class="op">(</span><span class="st">"boton_inicio"</span><span class="op">))</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">⏳</div>
+      <div class="card-head-text">
+        <h3>Corrutinas con await</h3>
+        <p><code>await</code> pausa la función hasta que ocurra algo (una señal, un tiempo, etc.) sin bloquear el resto del juego.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Esperar N segundos</span>
+<span class="kw">func</span> <span class="fn">aparicion_enemigo</span><span class="op">():</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Enemigo aparecerá en 3 segundos..."</span><span class="op">)</span>
+    <span class="kw">await</span> <span class="fn">get_tree</span><span class="op">().</span><span class="fn">create_timer</span><span class="op">(</span><span class="nu">3.0</span><span class="op">).</span><span class="va">timeout</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"¡Enemigo aparece!"</span><span class="op">)</span>
+    <span class="fn">spawn_enemigo</span><span class="op">()</span>
+
+<span class="cm"># Esperar a que el jugador presione un botón</span>
+<span class="kw">func</span> <span class="fn">esperar_confirmacion</span><span class="op">():</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Presiona el botón para continuar"</span><span class="op">)</span>
+    <span class="kw">await</span> <span class="va">boton_ok</span><span class="op">.</span><span class="va">pressed</span>   <span class="cm"># pausa hasta que se presione</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Continuando..."</span><span class="op">)</span>
+
+<span class="cm"># Esperar el siguiente frame</span>
+<span class="kw">await</span> <span class="fn">get_tree</span><span class="op">().</span><span class="va">process_frame</span>
+
+<span class="cm"># Esperar el siguiente tick de física</span>
+<span class="kw">await</span> <span class="fn">get_tree</span><span class="op">().</span><span class="va">physics_frame</span>
+
+<span class="cm"># Esperar a que otra corrutina termine</span>
+<span class="kw">func</span> <span class="fn">secuencia_intro</span><span class="op">():</span>
+    <span class="kw">await</span> <span class="fn">mostrar_logo</span><span class="op">()</span>      <span class="cm"># espera que esta función termine</span>
+    <span class="kw">await</span> <span class="fn">mostrar_titulo</span><span class="op">()</span>
+    <span class="fn">iniciar_juego</span><span class="op">()</span>
+</pre>
+      <div class="callout callout-blue" style="margin-top:14px">
+        <span class="callout-icon">💡</span>
+        <div class="callout-text"><strong>¿Cómo funciona await?</strong> Cuando Godot llega a un <code>await</code>, congela esa función y continúa ejecutando el resto del juego normalmente. Cuando la condición se cumple, la función continúa donde se quedó.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ CONTROL DE FLUJO ════════════════ -->
+<section class="section" id="control">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <div class="section-info">
+      <h2>Control de Flujo</h2>
+      <p>Condicionales, bucles y operadores para dirigir la lógica de tu juego.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">🤔</div>
+      <div class="card-head-text">
+        <h3>if / elif / else</h3>
+        <p>Ejecuta código solo si se cumple una condición.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Forma básica</span>
+<span class="kw">if</span> <span class="va">vida</span> <span class="op"><=</span> <span class="nu">0</span><span class="op">:</span>
+    <span class="fn">morir</span><span class="op">()</span>
+
+<span class="cm"># Con else</span>
+<span class="kw">if</span> <span class="va">tiene_llave</span><span class="op">:</span>
+    <span class="fn">abrir_puerta</span><span class="op">()</span>
+<span class="kw">else</span><span class="op">:</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Necesitas una llave"</span><span class="op">)</span>
+
+<span class="cm"># Con elif (múltiples condiciones)</span>
+<span class="kw">if</span> <span class="va">vida</span> <span class="op">></span> <span class="nu">75</span><span class="op">:</span>
+    <span class="fn">set_animacion</span><span class="op">(</span><span class="st">"saludable"</span><span class="op">)</span>
+<span class="kw">elif</span> <span class="va">vida</span> <span class="op">></span> <span class="nu">50</span><span class="op">:</span>
+    <span class="fn">set_animacion</span><span class="op">(</span><span class="st">"herido"</span><span class="op">)</span>
+<span class="kw">elif</span> <span class="va">vida</span> <span class="op">></span> <span class="nu">25</span><span class="op">:</span>
+    <span class="fn">set_animacion</span><span class="op">(</span><span class="st">"critico"</span><span class="op">)</span>
+<span class="kw">else</span><span class="op">:</span>
+    <span class="fn">morir</span><span class="op">()</span>
+
+<span class="cm"># Expresión ternaria (if en una línea)</span>
+<span class="cm"># resultado = valor_si_true  if  condicion  else  valor_si_false</span>
+<span class="kw">var</span> <span class="va">texto</span> <span class="op">=</span> <span class="st">"Vivo"</span> <span class="kw">if</span> <span class="va">vida</span> <span class="op">></span> <span class="nu">0</span> <span class="kw">else</span> <span class="st">"Muerto"</span>
+<span class="kw">var</span> <span class="va">velocidad</span> <span class="op">=</span> <span class="nu">400.0</span> <span class="kw">if</span> <span class="va">turbo_activo</span> <span class="kw">else</span> <span class="nu">200.0</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">🎯</div>
+      <div class="card-head-text">
+        <h3>match (equivalente al switch)</h3>
+        <p><code>match</code> compara un valor con múltiples patrones. Es más potente que un simple switch.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Match básico con valores</span>
+<span class="kw">match</span> <span class="va">estado</span><span class="op">:</span>
+    <span class="cl">Estado</span><span class="op">.</span><span class="va">IDLE</span><span class="op">:</span>
+        <span class="fn">reproducir_idle</span><span class="op">()</span>
+    <span class="cl">Estado</span><span class="op">.</span><span class="va">CORRIENDO</span><span class="op">:</span>
+        <span class="fn">reproducir_correr</span><span class="op">()</span>
+    <span class="cl">Estado</span><span class="op">.</span><span class="va">SALTANDO</span><span class="op">:</span>
+        <span class="fn">reproducir_saltar</span><span class="op">()</span>
+    <span class="op">_:</span>                  <span class="cm"># caso por defecto (como el "default:")</span>
+        <span class="fn">print</span><span class="op">(</span><span class="st">"Estado desconocido"</span><span class="op">)</span>
+
+<span class="cm"># Agrupar varios valores en el mismo caso</span>
+<span class="kw">match</span> <span class="va">tecla</span><span class="op">:</span>
+    <span class="st">"w"</span><span class="op">,</span> <span class="st">"W"</span><span class="op">,</span> <span class="st">"arriba"</span><span class="op">:</span>
+        <span class="fn">mover_arriba</span><span class="op">()</span>
+    <span class="st">"s"</span><span class="op">,</span> <span class="st">"S"</span><span class="op">,</span> <span class="st">"abajo"</span><span class="op">:</span>
+        <span class="fn">mover_abajo</span><span class="op">()</span>
+
+<span class="cm"># Match con captura de variable (bind)</span>
+<span class="kw">match</span> <span class="va">mensaje</span><span class="op">:</span>
+    <span class="op">[</span><span class="st">"mover"</span><span class="op">,</span> <span class="kw">var</span> <span class="va">x</span><span class="op">,</span> <span class="kw">var</span> <span class="va">y</span><span class="op">]:</span>
+        <span class="fn">mover_a</span><span class="op">(</span><span class="va">x</span><span class="op">,</span> <span class="va">y</span><span class="op">)</span>       <span class="cm"># extrae x e y del array</span>
+    <span class="op">[</span><span class="st">"atacar"</span><span class="op">,</span> <span class="kw">var</span> <span class="va">obj</span><span class="op">]:</span>
+        <span class="fn">atacar</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span>
+
+<span class="cm"># Guard: condición adicional dentro del match</span>
+<span class="kw">match</span> <span class="va">puntos</span><span class="op">:</span>
+    <span class="kw">var</span> <span class="va">p</span> <span class="kw">when</span> <span class="va">p</span> <span class="op">>=</span> <span class="nu">1000</span><span class="op">:</span> <span class="fn">print</span><span class="op">(</span><span class="st">"¡Oro!"</span><span class="op">)</span>
+    <span class="kw">var</span> <span class="va">p</span> <span class="kw">when</span> <span class="va">p</span> <span class="op">>=</span> <span class="nu">500</span><span class="op">:</span>  <span class="fn">print</span><span class="op">(</span><span class="st">"Plata"</span><span class="op">)</span>
+    <span class="op">_</span><span class="op">:</span>                    <span class="fn">print</span><span class="op">(</span><span class="st">"Bronce"</span><span class="op">)</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">🔄</div>
+      <div class="card-head-text">
+        <h3>Bucles: for y while</h3>
+        <p>Para repetir acciones múltiples veces.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># ── FOR ──────────────────────────────────────────────</span>
+
+<span class="cm"># range(n): de 0 hasta n-1</span>
+<span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="fn">range</span><span class="op">(</span><span class="nu">5</span><span class="op">):</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">i</span><span class="op">)</span>  <span class="cm"># 0, 1, 2, 3, 4</span>
+
+<span class="cm"># range(inicio, fin): de inicio hasta fin-1</span>
+<span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="fn">range</span><span class="op">(</span><span class="nu">3</span><span class="op">,</span> <span class="nu">8</span><span class="op">):</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">i</span><span class="op">)</span>  <span class="cm"># 3, 4, 5, 6, 7</span>
+
+<span class="cm"># range(inicio, fin, paso): de 0 a 10 de 2 en 2</span>
+<span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="fn">range</span><span class="op">(</span><span class="nu">0</span><span class="op">,</span> <span class="nu">11</span><span class="op">,</span> <span class="nu">2</span><span class="op">):</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">i</span><span class="op">)</span>  <span class="cm"># 0, 2, 4, 6, 8, 10</span>
+
+<span class="cm"># Iterar sobre un array</span>
+<span class="kw">var</span> <span class="va">enemigos</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Goblin"</span><span class="op">,</span> <span class="st">"Troll"</span><span class="op">,</span> <span class="st">"Dragón"</span><span class="op">]</span>
+<span class="kw">for</span> <span class="va">enemigo</span> <span class="kw">in</span> <span class="va">enemigos</span><span class="op">:</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Aparece: "</span><span class="op">,</span> <span class="va">enemigo</span><span class="op">)</span>
+
+<span class="cm"># Iterar sobre un diccionario (da las claves)</span>
+<span class="kw">var</span> <span class="va">inventario</span> <span class="op">=</span> <span class="op">{</span><span class="st">"espada"</span><span class="op">:</span> <span class="nu">1</span><span class="op">,</span> <span class="st">"pocion"</span><span class="op">:</span> <span class="nu">5</span><span class="op">}</span>
+<span class="kw">for</span> <span class="va">item</span> <span class="kw">in</span> <span class="va">inventario</span><span class="op">:</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">item</span><span class="op">,</span> <span class="st">": x"</span><span class="op">,</span> <span class="va">inventario</span><span class="op">[</span><span class="va">item</span><span class="op">])</span>  <span class="cm"># "espada: x1", etc.</span>
+
+<span class="cm"># ── WHILE ────────────────────────────────────────────</span>
+
+<span class="cm"># Ejecuta mientras la condición sea verdadera</span>
+<span class="kw">var</span> <span class="va">vidas</span> <span class="op">=</span> <span class="nu">3</span>
+<span class="kw">while</span> <span class="va">vidas</span> <span class="op">></span> <span class="nu">0</span><span class="op">:</span>
+    <span class="fn">jugar_ronda</span><span class="op">()</span>
+    <span class="va">vidas</span> <span class="op">-=</span> <span class="nu">1</span>
+
+<span class="cm"># ── CONTROL DE BUCLE ─────────────────────────────────</span>
+
+<span class="kw">for</span> <span class="va">n</span> <span class="kw">in</span> <span class="fn">range</span><span class="op">(</span><span class="nu">10</span><span class="op">):</span>
+    <span class="kw">if</span> <span class="va">n</span> <span class="op">==</span> <span class="nu">5</span><span class="op">:</span>
+        <span class="kw">break</span>       <span class="cm"># detiene el bucle completamente</span>
+    <span class="kw">if</span> <span class="va">n</span> <span class="op">%</span> <span class="nu">2</span> <span class="op">==</span> <span class="nu">0</span><span class="op">:</span>
+        <span class="kw">continue</span>    <span class="cm"># salta a la siguiente iteración</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">n</span><span class="op">)</span>       <span class="cm"># solo imprime impares < 5: 1, 3</span>
+
+<span class="cm"># pass: no hace nada (placeholder)</span>
+<span class="kw">func</span> <span class="fn">funcion_incompleta</span><span class="op">():</span>
+    <span class="kw">pass</span>           <span class="cm"># evita error de "cuerpo vacío"</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-red">🧮</div>
+      <div class="card-head-text">
+        <h3>Operadores</h3>
+        <p>Todos los operadores disponibles en GDScript.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Tipo</th><th>Operadores</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td class="desc">Aritméticos</td><td><code>+ - * / // % **</code></td><td class="ex">7 // 2 = 3 (div. entera) · 2**8 = 256</td></tr>
+          <tr><td class="desc">Comparación</td><td><code>== != &lt; &gt; &lt;= &gt;=</code></td><td class="ex">vida == 100 · nivel >= 5</td></tr>
+          <tr><td class="desc">Lógicos</td><td><code>and  or  not</code></td><td class="ex">vivo and tiene_arma</td></tr>
+          <tr><td class="desc">Lógicos (alt)</td><td><code>&amp;&amp;  ||  !</code></td><td class="ex">vivo &amp;&amp; tiene_arma</td></tr>
+          <tr><td class="desc">Asignación</td><td><code>= += -= *= /= %= **=</code></td><td class="ex">vida += 10 · escala **= 2</td></tr>
+          <tr><td class="desc">Bits</td><td><code>&amp; | ^ ~ &lt;&lt; &gt;&gt;</code></td><td class="ex">flags &amp; CAPA_SUELO · valor &lt;&lt; 2</td></tr>
+          <tr><td class="desc">Identidad/tipo</td><td><code>is  as  in  not in</code></td><td class="ex">nodo is Jugador · "k" in diccionario</td></tr>
+        </tbody>
+      </table>
+      <div class="callout callout-orange" style="margin-top:14px">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text"><strong>Diferencia entre / y //</strong> El operador <code>/</code> con enteros hace división entera (<code>7/2 = 3</code>). Si necesitas el resultado decimal, convierte uno a float: <code>7.0/2 = 3.5</code> o usa <code>float(7)/2</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STRINGS ════════════════ -->
+<section class="section" id="strings">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <div class="section-info">
+      <h2>Strings (Cadenas de texto)</h2>
+      <p>Todo lo que puedes hacer con texto en GDScript — formatear, buscar, dividir, y mucho más.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">✏️</div>
+      <div class="card-head-text">
+        <h3>Crear y formatear strings</h3>
+        <p>Distintas maneras de construir texto dinámico.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Comillas simples o dobles</span>
+<span class="kw">var</span> <span class="va">a</span> <span class="op">=</span> <span class="st">"Hola"</span>
+<span class="kw">var</span> <span class="va">b</span> <span class="op">=</span> <span class="st">'Mundo'</span>
+
+<span class="cm"># Multilinea (con triple comillas)</span>
+<span class="kw">var</span> <span class="va">historia</span> <span class="op">=</span> <span class="st">"""
+Érase una vez un héroe
+que vivía en un castillo
+muy lejano.
+"""</span>
+
+<span class="cm"># Concatenar con +</span>
+<span class="kw">var</span> <span class="va">saludo</span> <span class="op">=</span> <span class="st">"Hola, "</span> <span class="op">+</span> <span class="va">nombre</span> <span class="op">+</span> <span class="st">"!"</span>
+
+<span class="cm"># Formatear con % (estilo printf)</span>
+<span class="kw">var</span> <span class="va">msg</span> <span class="op">=</span> <span class="st">"Jugador: %s · Nivel: %d · Score: %05d"</span> <span class="op">%</span> <span class="op">[</span><span class="va">nombre</span><span class="op">,</span> <span class="va">nivel</span><span class="op">,</span> <span class="va">score</span><span class="op">]</span>
+<span class="cm"># %s = string, %d = entero, %f = float, %05d = entero con 5 dígitos relleno de ceros</span>
+
+<span class="cm"># Formatear float con decimales</span>
+<span class="kw">var</span> <span class="va">velocidad_txt</span> <span class="op">=</span> <span class="st">"Vel: %.1f m/s"</span> <span class="op">%</span> <span class="va">velocidad</span>  <span class="cm"># "Vel: 3.5 m/s"</span>
+
+<span class="cm"># String.format() con diccionario (más legible)</span>
+<span class="kw">var</span> <span class="va">texto</span> <span class="op">=</span> <span class="st">"{nombre} ha alcanzado el nivel {nivel}!"</span><span class="op">.</span><span class="fn">format</span><span class="op">({</span>
+    <span class="st">"nombre"</span><span class="op">:</span> <span class="st">"Aria"</span><span class="op">,</span>
+    <span class="st">"nivel"</span><span class="op">:</span> <span class="nu">10</span>
+<span class="op">})</span>  <span class="cm"># → "Aria ha alcanzado el nivel 10!"</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🔍</div>
+      <div class="card-head-text">
+        <h3>Métodos de String</h3>
+        <p>Todas las operaciones que puedes hacer sobre un texto.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Método</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>s.length()</code></td><td class="desc">Número de caracteres</td><td class="ex">"hola".length() → 4</td></tr>
+          <tr><td><code>s.is_empty()</code></td><td class="desc">¿Está vacío?</td><td class="ex">"".is_empty() → true</td></tr>
+          <tr><td><code>s.to_upper()</code></td><td class="desc">Todo en mayúsculas</td><td class="ex">"hola".to_upper() → "HOLA"</td></tr>
+          <tr><td><code>s.to_lower()</code></td><td class="desc">Todo en minúsculas</td><td class="ex">"HOLA".to_lower() → "hola"</td></tr>
+          <tr><td><code>s.strip_edges()</code></td><td class="desc">Quitar espacios al inicio y fin</td><td class="ex">"  hi  ".strip_edges() → "hi"</td></tr>
+          <tr><td><code>s.contains("x")</code></td><td class="desc">¿Contiene el texto x?</td><td class="ex">"hola mundo".contains("mundo") → true</td></tr>
+          <tr><td><code>s.begins_with("x")</code></td><td class="desc">¿Empieza con x?</td><td class="ex">"godot".begins_with("go") → true</td></tr>
+          <tr><td><code>s.ends_with("x")</code></td><td class="desc">¿Termina con x?</td><td class="ex">"archivo.png".ends_with(".png") → true</td></tr>
+          <tr><td><code>s.find("x")</code></td><td class="desc">Posición de x (-1 si no está)</td><td class="ex">"hello".find("ll") → 2</td></tr>
+          <tr><td><code>s.replace(a, b)</code></td><td class="desc">Reemplaza a por b</td><td class="ex">"foo bar".replace("foo","baz") → "baz bar"</td></tr>
+          <tr><td><code>s.split(",")</code></td><td class="desc">Divide por separador → Array</td><td class="ex">"a,b,c".split(",") → ["a","b","c"]</td></tr>
+          <tr><td><code>",".join(arr)</code></td><td class="desc">Une array con separador</td><td class="ex">",".join(["a","b"]) → "a,b"</td></tr>
+          <tr><td><code>s.substr(i, n)</code></td><td class="desc">Subcadena desde i, longitud n</td><td class="ex">"hola".substr(1, 2) → "ol"</td></tr>
+          <tr><td><code>s.left(n)</code></td><td class="desc">Primeros n caracteres</td><td class="ex">"hola".left(2) → "ho"</td></tr>
+          <tr><td><code>s.right(n)</code></td><td class="desc">Últimos n caracteres</td><td class="ex">"hola".right(2) → "la"</td></tr>
+          <tr><td><code>s.reverse()</code></td><td class="desc">Texto al revés</td><td class="ex">"abc".reverse() → "cba"</td></tr>
+          <tr><td><code>s.repeat(n)</code></td><td class="desc">Repetir n veces</td><td class="ex">"ab".repeat(3) → "ababab"</td></tr>
+          <tr><td><code>s.pad_zeros(n)</code></td><td class="desc">Rellenar con ceros a la izquierda</td><td class="ex">"7".pad_zeros(3) → "007"</td></tr>
+          <tr><td><code>s.to_int()</code></td><td class="desc">Convertir a int</td><td class="ex">"42".to_int() → 42</td></tr>
+          <tr><td><code>s.to_float()</code></td><td class="desc">Convertir a float</td><td class="ex">"3.14".to_float() → 3.14</td></tr>
+          <tr><td><code>s.is_valid_int()</code></td><td class="desc">¿El texto representa un entero?</td><td class="ex">"42".is_valid_int() → true</td></tr>
+          <tr><td><code>s.capitalize()</code></td><td class="desc">Primera letra mayúscula</td><td class="ex">"hola mundo".capitalize() → "Hola Mundo"</td></tr>
+          <tr><td><code>s.count("x")</code></td><td class="desc">Cuántas veces aparece x</td><td class="ex">"banana".count("a") → 3</td></tr>
+          <tr><td><code>s.get_extension()</code></td><td class="desc">Extensión de un nombre de archivo</td><td class="ex">"imagen.png".get_extension() → "png"</td></tr>
+          <tr><td><code>s.get_basename()</code></td><td class="desc">Nombre sin extensión</td><td class="ex">"imagen.png".get_basename() → "imagen"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ARRAYS ════════════════ -->
+<section class="section" id="arrays">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <div class="section-info">
+      <h2>Arrays (Listas)</h2>
+      <p>Los arrays guardan colecciones ordenadas de elementos. Se acceden por índice (empezando en 0).</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-green">📋</div>
+      <div class="card-head-text">
+        <h3>Crear y acceder</h3>
+        <p>Cómo crear arrays y leer/escribir elementos.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Array vacío</span>
+<span class="kw">var</span> <span class="va">lista</span><span class="op">:</span> <span class="cl">Array</span> <span class="op">=</span> <span class="op">[]</span>
+
+<span class="cm"># Array con valores iniciales (puede mezclar tipos)</span>
+<span class="kw">var</span> <span class="va">items</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Espada"</span><span class="op">,</span> <span class="st">"Escudo"</span><span class="op">,</span> <span class="st">"Poción"</span><span class="op">]</span>
+
+<span class="cm"># Array tipado (solo puede contener int)</span>
+<span class="kw">var</span> <span class="va">puntuaciones</span><span class="op">:</span> <span class="cl">Array</span><span class="op">[</span><span class="cl">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="nu">100</span><span class="op">,</span> <span class="nu">250</span><span class="op">,</span> <span class="nu">80</span><span class="op">]</span>
+
+<span class="cm"># Acceder por índice (empieza en 0)</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">items</span><span class="op">[</span><span class="nu">0</span><span class="op">])</span>   <span class="cm"># "Espada"</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">items</span><span class="op">[</span><span class="nu">2</span><span class="op">])</span>   <span class="cm"># "Poción"</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">items</span><span class="op">[-</span><span class="nu">1</span><span class="op">])</span>  <span class="cm"># "Poción" (último elemento con índice negativo)</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">items</span><span class="op">[-</span><span class="nu">2</span><span class="op">])</span>  <span class="cm"># "Escudo" (penúltimo)</span>
+
+<span class="cm"># Modificar elemento</span>
+<span class="va">items</span><span class="op">[</span><span class="nu">1</span><span class="op">]</span> <span class="op">=</span> <span class="st">"Armadura"</span>  <span class="cm"># reemplaza "Escudo"</span>
+
+<span class="cm"># Tamaño del array</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">items</span><span class="op">.</span><span class="fn">size</span><span class="op">())</span>    <span class="cm"># 3</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">items</span><span class="op">.</span><span class="fn">is_empty</span><span class="op">())</span>  <span class="cm"># false</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🔧</div>
+      <div class="card-head-text">
+        <h3>Agregar y eliminar elementos</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Método</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>a.append(x)</code></td><td class="desc">Agrega x al final del array</td></tr>
+          <tr><td><code>a.push_back(x)</code></td><td class="desc">Igual que append()</td></tr>
+          <tr><td><code>a.push_front(x)</code></td><td class="desc">Agrega x al inicio (más lento)</td></tr>
+          <tr><td><code>a.insert(i, x)</code></td><td class="desc">Inserta x en la posición i</td></tr>
+          <tr><td><code>a.pop_back()</code></td><td class="desc">Elimina y devuelve el último elemento</td></tr>
+          <tr><td><code>a.pop_front()</code></td><td class="desc">Elimina y devuelve el primer elemento</td></tr>
+          <tr><td><code>a.remove_at(i)</code></td><td class="desc">Elimina el elemento en la posición i</td></tr>
+          <tr><td><code>a.erase(x)</code></td><td class="desc">Elimina la primera ocurrencia del valor x</td></tr>
+          <tr><td><code>a.clear()</code></td><td class="desc">Vacía el array completamente</td></tr>
+          <tr><td><code>a.resize(n)</code></td><td class="desc">Cambia el tamaño (rellena con null si agranda)</td></tr>
+          <tr><td><code>a.fill(x)</code></td><td class="desc">Rellena todos los elementos con el valor x</td></tr>
+          <tr><td><code>a.append_array(b)</code></td><td class="desc">Agrega todos los elementos de b al final de a</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">🔍</div>
+      <div class="card-head-text">
+        <h3>Buscar y organizar</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="kw">var</span> <span class="va">nums</span> <span class="op">=</span> <span class="op">[</span><span class="nu">3</span><span class="op">,</span> <span class="nu">1</span><span class="op">,</span> <span class="nu">4</span><span class="op">,</span> <span class="nu">1</span><span class="op">,</span> <span class="nu">5</span><span class="op">,</span> <span class="nu">9</span><span class="op">]</span>
+
+<span class="cm"># Buscar</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">has</span><span class="op">(</span><span class="nu">4</span><span class="op">)</span>          <span class="cm"># true — ¿contiene el valor 4?</span>
+<span class="nu">4</span> <span class="kw">in</span> <span class="va">nums</span>            <span class="cm"># true — otra forma de .has()</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">find</span><span class="op">(</span><span class="nu">1</span><span class="op">)</span>         <span class="cm"># 1 — índice de la primera aparición (o -1)</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">rfind</span><span class="op">(</span><span class="nu">1</span><span class="op">)</span>        <span class="cm"># 3 — índice de la última aparición</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">count</span><span class="op">(</span><span class="nu">1</span><span class="op">)</span>        <span class="cm"># 2 — cuántas veces aparece el valor 1</span>
+
+<span class="cm"># Organizar</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">sort</span><span class="op">()</span>           <span class="cm"># [1, 1, 3, 4, 5, 9] — ordena de menor a mayor</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">reverse</span><span class="op">()</span>        <span class="cm"># invierte el orden</span>
+<span class="va">nums</span><span class="op">.</span><span class="fn">shuffle</span><span class="op">()</span>        <span class="cm"># mezcla aleatoriamente</span>
+
+<span class="cm"># Ordenar con criterio personalizado (por longitud de string)</span>
+<span class="kw">var</span> <span class="va">nombres</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Dragón"</span><span class="op">,</span> <span class="st">"Goblin"</span><span class="op">,</span> <span class="st">"Troll"</span><span class="op">]</span>
+<span class="va">nombres</span><span class="op">.</span><span class="fn">sort_custom</span><span class="op">(</span><span class="kw">func</span><span class="op">(</span><span class="va">a</span><span class="op">,</span><span class="va">b</span><span class="op">):</span> <span class="kw">return</span> <span class="va">a</span><span class="op">.</span><span class="fn">length</span><span class="op">() <</span> <span class="va">b</span><span class="op">.</span><span class="fn">length</span><span class="op">())</span>
+
+<span class="cm"># Copiar (sin copiar son referencias al mismo array)</span>
+<span class="kw">var</span> <span class="va">copia</span> <span class="op">=</span> <span class="va">nums</span><span class="op">.</span><span class="fn">duplicate</span><span class="op">()</span>        <span class="cm"># copia superficial</span>
+<span class="kw">var</span> <span class="va">copia2</span> <span class="op">=</span> <span class="va">nums</span><span class="op">.</span><span class="fn">duplicate</span><span class="op">(</span><span class="kw">true</span><span class="op">)</span>   <span class="cm"># copia profunda (para arrays anidados)</span>
+
+<span class="cm"># Sub-array</span>
+<span class="kw">var</span> <span class="va">parte</span> <span class="op">=</span> <span class="va">nums</span><span class="op">.</span><span class="fn">slice</span><span class="op">(</span><span class="nu">1</span><span class="op">,</span> <span class="nu">4</span><span class="op">)</span>       <span class="cm"># elementos del índice 1 al 3</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">🧪</div>
+      <div class="card-head-text">
+        <h3>Funciones de orden superior (map, filter, reduce)</h3>
+        <p>Transformar y filtrar arrays de forma elegante.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="kw">var</span> <span class="va">numeros</span> <span class="op">=</span> <span class="op">[</span><span class="nu">1</span><span class="op">,</span> <span class="nu">2</span><span class="op">,</span> <span class="nu">3</span><span class="op">,</span> <span class="nu">4</span><span class="op">,</span> <span class="nu">5</span><span class="op">]</span>
+
+<span class="cm"># map(): transforma cada elemento</span>
+<span class="kw">var</span> <span class="va">dobles</span> <span class="op">=</span> <span class="va">numeros</span><span class="op">.</span><span class="fn">map</span><span class="op">(</span><span class="kw">func</span><span class="op">(</span><span class="va">n</span><span class="op">):</span> <span class="kw">return</span> <span class="va">n</span> <span class="op">*</span> <span class="nu">2</span><span class="op">)</span>
+<span class="cm"># → [2, 4, 6, 8, 10]</span>
+
+<span class="cm"># filter(): solo conserva los que cumplen la condición</span>
+<span class="kw">var</span> <span class="va">pares</span> <span class="op">=</span> <span class="va">numeros</span><span class="op">.</span><span class="fn">filter</span><span class="op">(</span><span class="kw">func</span><span class="op">(</span><span class="va">n</span><span class="op">):</span> <span class="kw">return</span> <span class="va">n</span> <span class="op">%</span> <span class="nu">2</span> <span class="op">==</span> <span class="nu">0</span><span class="op">)</span>
+<span class="cm"># → [2, 4]</span>
+
+<span class="cm"># reduce(): acumula todos los elementos en un solo valor</span>
+<span class="kw">var</span> <span class="va">suma</span> <span class="op">=</span> <span class="va">numeros</span><span class="op">.</span><span class="fn">reduce</span><span class="op">(</span><span class="kw">func</span><span class="op">(</span><span class="va">acum</span><span class="op">,</span> <span class="va">n</span><span class="op">):</span> <span class="kw">return</span> <span class="va">acum</span> <span class="op">+</span> <span class="va">n</span><span class="op">,</span> <span class="nu">0</span><span class="op">)</span>
+<span class="cm"># → 15  (0+1+2+3+4+5)</span>
+
+<span class="cm"># any(): ¿algún elemento cumple la condición?</span>
+<span class="kw">var</span> <span class="va">hay_grande</span> <span class="op">=</span> <span class="va">numeros</span><span class="op">.</span><span class="fn">any</span><span class="op">(</span><span class="kw">func</span><span class="op">(</span><span class="va">n</span><span class="op">):</span> <span class="kw">return</span> <span class="va">n</span> <span class="op">></span> <span class="nu">4</span><span class="op">)</span>
+<span class="cm"># → true (el 5 es > 4)</span>
+
+<span class="cm"># all(): ¿TODOS los elementos cumplen la condición?</span>
+<span class="kw">var</span> <span class="va">todos_positivos</span> <span class="op">=</span> <span class="va">numeros</span><span class="op">.</span><span class="fn">all</span><span class="op">(</span><span class="kw">func</span><span class="op">(</span><span class="va">n</span><span class="op">):</span> <span class="kw">return</span> <span class="va">n</span> <span class="op">></span> <span class="nu">0</span><span class="op">)</span>
+<span class="cm"># → true</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ DICTS ════════════════ -->
+<section class="section" id="dicts">
+  <div class="section-header">
+    <div class="section-num">07</div>
+    <div class="section-info">
+      <h2>Diccionarios</h2>
+      <p>Los diccionarios guardan pares clave → valor. Son ideales para representar objetos con propiedades, configuraciones o bases de datos simples.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">📚</div>
+      <div class="card-head-text">
+        <h3>Crear y acceder</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Diccionario con datos de personaje</span>
+<span class="kw">var</span> <span class="va">personaje</span> <span class="op">=</span> <span class="op">{</span>
+    <span class="st">"nombre"</span><span class="op">:</span> <span class="st">"Aria"</span><span class="op">,</span>
+    <span class="st">"nivel"</span><span class="op">:</span>  <span class="nu">10</span><span class="op">,</span>
+    <span class="st">"clase"</span><span class="op">:</span>  <span class="st">"Maga"</span><span class="op">,</span>
+    <span class="st">"stats"</span><span class="op">:</span>  <span class="op">{</span><span class="st">"fuerza"</span><span class="op">:</span> <span class="nu">4</span><span class="op">,</span> <span class="st">"magia"</span><span class="op">:</span> <span class="nu">18</span><span class="op">}</span>   <span class="cm"># diccionario anidado</span>
+<span class="op">}</span>
+
+<span class="cm"># Acceder al valor — dos formas:</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">personaje</span><span class="op">[</span><span class="st">"nombre"</span><span class="op">])</span>   <span class="cm"># "Aria"</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">personaje</span><span class="op">.</span><span class="va">nivel</span><span class="op">)</span>       <span class="cm"># 10 (solo funciona con claves que son strings válidas)</span>
+
+<span class="cm"># Acceder a diccionario anidado</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">personaje</span><span class="op">.</span><span class="va">stats</span><span class="op">.</span><span class="va">magia</span><span class="op">)</span>  <span class="cm"># 18</span>
+
+<span class="cm"># get(): acceder con valor por defecto (evita errores si la clave no existe)</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">personaje</span><span class="op">.</span><span class="fn">get</span><span class="op">(</span><span class="st">"edad"</span><span class="op">,</span> <span class="nu">0</span><span class="op">))</span>  <span class="cm"># 0 (clave "edad" no existe)</span>
+
+<span class="cm"># Modificar o agregar clave</span>
+<span class="va">personaje</span><span class="op">[</span><span class="st">"nivel"</span><span class="op">]</span> <span class="op">=</span> <span class="nu">11</span>          <span class="cm"># modifica existente</span>
+<span class="va">personaje</span><span class="op">[</span><span class="st">"oro"</span><span class="op">]</span> <span class="op">=</span> <span class="nu">500</span>           <span class="cm"># agrega nueva clave</span>
+
+<span class="cm"># Verificar si existe una clave</span>
+<span class="kw">if</span> <span class="va">personaje</span><span class="op">.</span><span class="fn">has</span><span class="op">(</span><span class="st">"clase"</span><span class="op">):</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Clase: "</span><span class="op">,</span> <span class="va">personaje</span><span class="op">.</span><span class="va">clase</span><span class="op">)</span>
+
+<span class="kw">if</span> <span class="st">"nivel"</span> <span class="kw">in</span> <span class="va">personaje</span><span class="op">:</span>      <span class="cm"># otra forma de verificar</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">personaje</span><span class="op">.</span><span class="va">nivel</span><span class="op">)</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">🔄</div>
+      <div class="card-head-text">
+        <h3>Operaciones y métodos</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Método</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>d.has(k)</code></td><td class="desc">¿Tiene la clave k?</td></tr>
+          <tr><td><code>d.has_all([k1,k2])</code></td><td class="desc">¿Tiene todas las claves dadas?</td></tr>
+          <tr><td><code>d.get(k, defecto)</code></td><td class="desc">Valor de k, o defecto si no existe</td></tr>
+          <tr><td><code>d.keys()</code></td><td class="desc">Array con todas las claves</td></tr>
+          <tr><td><code>d.values()</code></td><td class="desc">Array con todos los valores</td></tr>
+          <tr><td><code>d.size()</code></td><td class="desc">Número de pares clave-valor</td></tr>
+          <tr><td><code>d.is_empty()</code></td><td class="desc">¿Está vacío?</td></tr>
+          <tr><td><code>d.erase(k)</code></td><td class="desc">Elimina el par con clave k</td></tr>
+          <tr><td><code>d.clear()</code></td><td class="desc">Vacía el diccionario</td></tr>
+          <tr><td><code>d.merge(otro)</code></td><td class="desc">Agrega las entradas de otro (sin sobreescribir)</td></tr>
+          <tr><td><code>d.merge(otro, true)</code></td><td class="desc">Merge sobreescribiendo claves duplicadas</td></tr>
+          <tr><td><code>d.duplicate()</code></td><td class="desc">Copia superficial del diccionario</td></tr>
+        </tbody>
+      </table>
+      <pre style="margin-top:16px">
+<span class="cm"># Iterar sobre un diccionario</span>
+<span class="kw">for</span> <span class="va">clave</span> <span class="kw">in</span> <span class="va">personaje</span><span class="op">:</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">clave</span><span class="op">,</span> <span class="st">" = "</span><span class="op">,</span> <span class="va">personaje</span><span class="op">[</span><span class="va">clave</span><span class="op">])</span>
+
+<span class="cm"># Iterar sobre claves y valores a la vez</span>
+<span class="kw">for</span> <span class="va">k</span> <span class="kw">in</span> <span class="va">personaje</span><span class="op">.</span><span class="fn">keys</span><span class="op">():</span>
+    <span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="va">personaje</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"%s: %s"</span> <span class="op">%</span> <span class="op">[</span><span class="va">k</span><span class="op">,</span> <span class="va">v</span><span class="op">])</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+function navTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.tnav').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Sidebar scroll sync
+const sections = document.querySelectorAll('.section');
+const links = document.querySelectorAll('.sl');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const l = document.querySelector(`.sl[href="#${e.target.id}"]`);
+      if (l) l.classList.add('active');
+    }
+  });
+}, { threshold: 0.2, rootMargin: '-56px 0px 0px 0px' });
+sections.forEach(s => obs.observe(s));
+
+// Also observe hero/estructura
+const hero = document.getElementById('estructura');
+if (hero) obs.observe(hero);
+</script>
+</body>
+</html>
+<!-- ════════════════ CLASES ════════════════ -->
+<section class="section" id="clases">
+  <div class="section-header">
+    <div class="section-num">08</div>
+    <div class="section-info">
+      <h2>Clases & Herencia</h2>
+      <p>GDScript es orientado a objetos. Puedes crear clases, heredar comportamiento y reutilizar código de forma eficiente.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🏛️</div>
+      <div class="card-head-text">
+        <h3>extends y class_name</h3>
+        <p><code>extends</code> define de qué nodo o clase hereda el script. <code>class_name</code> registra la clase para usarla en otros scripts.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Personaje.gd — clase base</span>
+<span class="kw">extends</span> <span class="cl">CharacterBody2D</span>   <span class="cm"># hereda de CharacterBody2D</span>
+<span class="kw">class_name</span> <span class="cl">Personaje</span>       <span class="cm"># registra el nombre globalmente</span>
+
+<span class="kw">var</span> <span class="va">vida</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">100</span>
+<span class="kw">var</span> <span class="va">nombre</span><span class="op">:</span> <span class="cl">String</span> <span class="op">=</span> <span class="st">""</span>
+
+<span class="kw">func</span> <span class="fn">_init</span><span class="op">(</span><span class="va">p_nombre</span><span class="op">:</span> <span class="cl">String</span><span class="op">):</span>   <span class="cm"># constructor</span>
+    <span class="va">nombre</span> <span class="op">=</span> <span class="va">p_nombre</span>
+
+<span class="kw">func</span> <span class="fn">atacar</span><span class="op">()</span> <span class="op">-></span> <span class="cl">int</span><span class="op">:</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">nombre</span><span class="op">,</span> <span class="st">" ataca"</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="nu">10</span>
+
+<span class="kw">func</span> <span class="fn">recibir_dano</span><span class="op">(</span><span class="va">dano</span><span class="op">:</span> <span class="cl">int</span><span class="op">):</span>
+    <span class="va">vida</span> <span class="op">-=</span> <span class="va">dano</span>
+    <span class="kw">if</span> <span class="va">vida</span> <span class="op"><=</span> <span class="nu">0</span><span class="op">:</span>
+        <span class="fn">morir</span><span class="op">()</span>
+
+<span class="kw">func</span> <span class="fn">morir</span><span class="op">():</span>
+    <span class="fn">print</span><span class="op">(</span><span class="va">nombre</span><span class="op">,</span> <span class="st">" ha muerto"</span><span class="op">)</span>
+    <span class="fn">queue_free</span><span class="op">()</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-green">🧬</div>
+      <div class="card-head-text">
+        <h3>Herencia y super</h3>
+        <p>Un script puede heredar de otro, sobrescribir métodos y llamar al método padre con <code>super</code>.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Jugador.gd — hereda de Personaje</span>
+<span class="kw">extends</span> <span class="cl">Personaje</span>
+<span class="kw">class_name</span> <span class="cl">Jugador</span>
+
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">dano_critico</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">25</span>
+
+<span class="cm"># Sobrescribir el constructor y llamar al padre</span>
+<span class="kw">func</span> <span class="fn">_init</span><span class="op">(</span><span class="va">p_nombre</span><span class="op">:</span> <span class="cl">String</span><span class="op">):</span>
+    <span class="kw">super</span><span class="op">.</span><span class="fn">_init</span><span class="op">(</span><span class="va">p_nombre</span><span class="op">)</span>   <span class="cm"># llama al _init de Personaje</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Jugador creado: "</span><span class="op">,</span> <span class="va">nombre</span><span class="op">)</span>
+
+<span class="cm"># Sobrescribir atacar() para agregar comportamiento extra</span>
+<span class="kw">func</span> <span class="fn">atacar</span><span class="op">()</span> <span class="op">-></span> <span class="cl">int</span><span class="op">:</span>
+    <span class="kw">var</span> <span class="va">dano_base</span> <span class="op">=</span> <span class="kw">super</span><span class="op">.</span><span class="fn">atacar</span><span class="op">()</span>   <span class="cm"># ejecuta el atacar() de Personaje</span>
+    <span class="kw">if</span> <span class="fn">randf</span><span class="op">() <</span> <span class="nu">0.2</span><span class="op">:</span>                 <span class="cm"># 20% de probabilidad de crítico</span>
+        <span class="fn">print</span><span class="op">(</span><span class="st">"¡Golpe crítico!"</span><span class="op">)</span>
+        <span class="kw">return</span> <span class="va">dano_critico</span>
+    <span class="kw">return</span> <span class="va">dano_base</span>
+
+<span class="cm"># Método exclusivo del Jugador</span>
+<span class="kw">func</span> <span class="fn">usar_habilidad</span><span class="op">(</span><span class="va">id</span><span class="op">:</span> <span class="cl">int</span><span class="op">):</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"Usando habilidad #"</span><span class="op">,</span> <span class="va">id</span><span class="op">)</span>
+
+<span class="cm"># Verificar herencia</span>
+<span class="kw">var</span> <span class="va">j</span> <span class="op">=</span> <span class="cl">Jugador</span><span class="op">.</span><span class="kw">new</span><span class="op">(</span><span class="st">"Aria"</span><span class="op">)</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">j</span> <span class="kw">is</span> <span class="cl">Jugador</span><span class="op">)</span>     <span class="cm"># true</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">j</span> <span class="kw">is</span> <span class="cl">Personaje</span><span class="op">)</span>   <span class="cm"># true — también es Personaje por herencia</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">j</span> <span class="kw">is</span> <span class="cl">Node</span><span class="op">)</span>        <span class="cm"># true — hereda de toda la cadena</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">📦</div>
+      <div class="card-head-text">
+        <h3>Clases internas y Resources</h3>
+        <p>Puedes definir clases dentro de otras, o crear Resources personalizados que se guardan como archivos .tres.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Clase interna (definida dentro de otro script)</span>
+<span class="kw">class</span> <span class="cl">Estadisticas</span><span class="op">:</span>
+    <span class="kw">var</span> <span class="va">fuerza</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">10</span>
+    <span class="kw">var</span> <span class="va">agilidad</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">10</span>
+    <span class="kw">var</span> <span class="va">magia</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">10</span>
+
+    <span class="kw">func</span> <span class="fn">_init</span><span class="op">(</span><span class="va">f</span><span class="op">:</span><span class="cl">int</span><span class="op">,</span> <span class="va">a</span><span class="op">:</span><span class="cl">int</span><span class="op">,</span> <span class="va">m</span><span class="op">:</span><span class="cl">int</span><span class="op">):</span>
+        <span class="va">fuerza</span> <span class="op">=</span> <span class="va">f</span><span class="op">;</span> <span class="va">agilidad</span> <span class="op">=</span> <span class="va">a</span><span class="op">;</span> <span class="va">magia</span> <span class="op">=</span> <span class="va">m</span>
+
+    <span class="kw">func</span> <span class="fn">total</span><span class="op">()</span> <span class="op">-></span> <span class="cl">int</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="va">fuerza</span> <span class="op">+</span> <span class="va">agilidad</span> <span class="op">+</span> <span class="va">magia</span>
+
+<span class="kw">var</span> <span class="va">mis_stats</span> <span class="op">=</span> <span class="cl">Estadisticas</span><span class="op">.</span><span class="kw">new</span><span class="op">(</span><span class="nu">12</span><span class="op">,</span> <span class="nu">8</span><span class="op">,</span> <span class="nu">15</span><span class="op">)</span>
+
+<span class="cm"># ─────────────────────────────────────────────────────</span>
+<span class="cm"># Resource personalizado (ItemData.gd)</span>
+<span class="kw">extends</span> <span class="cl">Resource</span>
+<span class="kw">class_name</span> <span class="cl">ItemData</span>
+
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">nombre</span><span class="op">:</span> <span class="cl">String</span> <span class="op">=</span> <span class="st">""</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">descripcion</span><span class="op">:</span> <span class="cl">String</span> <span class="op">=</span> <span class="st">""</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">dano</span><span class="op">:</span> <span class="cl">int</span> <span class="op">=</span> <span class="nu">0</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">icono</span><span class="op">:</span> <span class="cl">Texture2D</span>
+
+<span class="cm"># Usar desde otro script:</span>
+<span class="an">@export</span> <span class="kw">var</span> <span class="va">arma_equipada</span><span class="op">:</span> <span class="cl">ItemData</span>   <span class="cm"># aparece en Inspector</span>
+<span class="fn">print</span><span class="op">(</span><span class="va">arma_equipada</span><span class="op">.</span><span class="va">dano</span><span class="op">)</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ NODOS ════════════════ -->
+<section class="section" id="nodos">
+  <div class="section-header">
+    <div class="section-num">09</div>
+    <div class="section-info">
+      <h2>Nodos y el Árbol de Escena</h2>
+      <p>En Godot todo es un nodo. Aquí aprenderás a referenciarlos, manipularlos y organizarlos desde código.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-green">🌳</div>
+      <div class="card-head-text">
+        <h3>Obtener referencias a nodos</h3>
+        <p>Todas las formas de acceder a un nodo desde código.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Forma corta con $ — busca hijo con ese nombre</span>
+<span class="kw">var</span> <span class="va">sp</span> <span class="op">=</span> <span class="op">$</span><span class="cl">Sprite2D</span>              <span class="cm"># hijo directo llamado "Sprite2D"</span>
+<span class="kw">var</span> <span class="va">hp</span> <span class="op">=</span> <span class="op">$</span><span class="cl">UI/HealthBar</span>          <span class="cm"># hijo de UI llamado "HealthBar"</span>
+<span class="kw">var</span> <span class="va">btn</span> <span class="op">=</span> <span class="op">$</span><span class="cl">../Menu/BotonStart</span>   <span class="cm"># .. sube al padre</span>
+
+<span class="cm"># get_node() — equivalente a $, más flexible</span>
+<span class="kw">var</span> <span class="va">nodo</span> <span class="op">=</span> <span class="fn">get_node</span><span class="op">(</span><span class="st">"Sprite2D"</span><span class="op">)</span>
+<span class="kw">var</span> <span class="va">nodo2</span> <span class="op">=</span> <span class="fn">get_node</span><span class="op">(</span><span class="st">"UI/HealthBar"</span><span class="op">)</span>
+
+<span class="cm"># get_node_or_null() — no lanza error si no existe</span>
+<span class="kw">var</span> <span class="va">opt</span> <span class="op">=</span> <span class="fn">get_node_or_null</span><span class="op">(</span><span class="st">"PosibleNodo"</span><span class="op">)</span>
+<span class="kw">if</span> <span class="va">opt</span> <span class="op">!=</span> <span class="kw">null</span><span class="op">:</span> <span class="va">opt</span><span class="op">.</span><span class="fn">hacer_algo</span><span class="op">()</span>
+
+<span class="cm"># Navegar por el árbol</span>
+<span class="fn">get_parent</span><span class="op">()</span>                <span class="cm"># nodo padre</span>
+<span class="fn">get_children</span><span class="op">()</span>              <span class="cm"># array con todos los hijos</span>
+<span class="fn">get_child</span><span class="op">(</span><span class="nu">0</span><span class="op">)</span>                <span class="cm"># primer hijo</span>
+<span class="fn">get_child_count</span><span class="op">()</span>           <span class="cm"># cuántos hijos tiene</span>
+<span class="fn">get_tree</span><span class="op">().</span><span class="fn">get_root</span><span class="op">()</span>       <span class="cm"># nodo raíz de toda la escena</span>
+<span class="fn">get_tree</span><span class="op">().</span><span class="va">current_scene</span>    <span class="cm"># escena activa</span>
+
+<span class="cm"># Buscar por nombre (en todo el subárbol)</span>
+<span class="fn">find_child</span><span class="op">(</span><span class="st">"*Sprite*"</span><span class="op">)</span>        <span class="cm"># búsqueda con comodín</span>
+<span class="fn">find_children</span><span class="op">(</span><span class="st">"*"</span><span class="op">,</span> <span class="st">"Node2D"</span><span class="op">)</span>  <span class="cm"># todos los Node2D</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">🔧</div>
+      <div class="card-head-text">
+        <h3>Manipular nodos</h3>
+        <p>Agregar, mover y eliminar nodos desde código.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Agregar nodo hijo</span>
+<span class="kw">var</span> <span class="va">nuevo</span> <span class="op">=</span> <span class="cl">Sprite2D</span><span class="op">.</span><span class="kw">new</span><span class="op">()</span>
+<span class="fn">add_child</span><span class="op">(</span><span class="va">nuevo</span><span class="op">)</span>
+
+<span class="cm"># Agregar en posición específica del árbol</span>
+<span class="fn">add_child</span><span class="op">(</span><span class="va">nuevo</span><span class="op">,</span> <span class="kw">true</span><span class="op">)</span>        <span class="cm"># force_readable_name</span>
+<span class="fn">add_sibling</span><span class="op">(</span><span class="va">nuevo</span><span class="op">)</span>            <span class="cm"># agrega al mismo nivel</span>
+<span class="fn">move_child</span><span class="op">(</span><span class="va">hijo</span><span class="op">,</span> <span class="nu">0</span><span class="op">)</span>          <span class="cm"># cambia posición (índice 0 = primero)</span>
+
+<span class="cm"># Eliminar nodo</span>
+<span class="va">nodo</span><span class="op">.</span><span class="fn">queue_free</span><span class="op">()</span>   <span class="cm"># RECOMENDADO: elimina al final del frame actual</span>
+<span class="va">nodo</span><span class="op">.</span><span class="fn">free</span><span class="op">()</span>         <span class="cm"># elimina inmediatamente (puede causar errores)</span>
+
+<span class="cm"># Quitar del padre sin eliminar</span>
+<span class="fn">remove_child</span><span class="op">(</span><span class="va">hijo</span><span class="op">)</span>            <span class="cm"># sigue existiendo pero fuera del árbol</span>
+<span class="va">hijo</span><span class="op">.</span><span class="fn">reparent</span><span class="op">(</span><span class="va">nuevo_padre</span><span class="op">)</span>  <span class="cm"># mover a otro padre</span>
+
+<span class="cm"># Comprobar estado del nodo</span>
+<span class="fn">is_inside_tree</span><span class="op">()</span>   <span class="cm"># ¿está en el árbol de escena?</span>
+<span class="fn">is_node_ready</span><span class="op">()</span>    <span class="cm"># ¿ya ejecutó _ready()?</span>
+<span class="fn">is_queued_for_deletion</span><span class="op">()</span>  <span class="cm"># ¿está esperando queue_free()?</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">📊</div>
+      <div class="card-head-text">
+        <h3>Propiedades comunes de Node</h3>
+        <p>Las propiedades que tienen todos los nodos de Godot.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Propiedad</th><th>Tipo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td class="desc">String</td><td class="desc">Nombre del nodo en el árbol</td></tr>
+          <tr><td><code>position</code></td><td class="desc">Vector2/3</td><td class="desc">Posición local (relativa al padre)</td></tr>
+          <tr><td><code>global_position</code></td><td class="desc">Vector2/3</td><td class="desc">Posición en el mundo</td></tr>
+          <tr><td><code>rotation</code></td><td class="desc">float</td><td class="desc">Rotación en radianes</td></tr>
+          <tr><td><code>rotation_degrees</code></td><td class="desc">float</td><td class="desc">Rotación en grados</td></tr>
+          <tr><td><code>scale</code></td><td class="desc">Vector2/3</td><td class="desc">Escala (1.0 = tamaño normal)</td></tr>
+          <tr><td><code>visible</code></td><td class="desc">bool</td><td class="desc">Visibilidad (oculta también hijos)</td></tr>
+          <tr><td><code>modulate</code></td><td class="desc">Color</td><td class="desc">Tinte de color (con alpha)</td></tr>
+          <tr><td><code>z_index</code></td><td class="desc">int</td><td class="desc">Orden de dibujo (mayor = encima)</td></tr>
+          <tr><td><code>process_mode</code></td><td class="desc">enum</td><td class="desc">Comportamiento al pausar el juego</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-red">👥</div>
+      <div class="card-head-text">
+        <h3>Grupos</h3>
+        <p>Los grupos permiten agrupar nodos y enviarles mensajes a todos a la vez.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Agregar a un grupo (desde código o desde el Inspector)</span>
+<span class="fn">add_to_group</span><span class="op">(</span><span class="st">"enemigos"</span><span class="op">)</span>
+<span class="fn">add_to_group</span><span class="op">(</span><span class="st">"colisionables"</span><span class="op">)</span>
+
+<span class="cm"># Verificar y salir</span>
+<span class="fn">is_in_group</span><span class="op">(</span><span class="st">"enemigos"</span><span class="op">)</span>       <span class="cm"># true/false</span>
+<span class="fn">remove_from_group</span><span class="op">(</span><span class="st">"enemigos"</span><span class="op">)</span>
+
+<span class="cm"># Desde el SceneTree: obtener todos los nodos del grupo</span>
+<span class="kw">var</span> <span class="va">todos_enemigos</span> <span class="op">=</span> <span class="fn">get_tree</span><span class="op">().</span><span class="fn">get_nodes_in_group</span><span class="op">(</span><span class="st">"enemigos"</span><span class="op">)</span>
+<span class="kw">for</span> <span class="va">e</span> <span class="kw">in</span> <span class="va">todos_enemigos</span><span class="op">:</span>
+    <span class="va">e</span><span class="op">.</span><span class="fn">alertar</span><span class="op">()</span>
+
+<span class="cm"># Llamar un método en todos los del grupo a la vez</span>
+<span class="fn">get_tree</span><span class="op">().</span><span class="fn">call_group</span><span class="op">(</span><span class="st">"enemigos"</span><span class="op">,</span> <span class="st">"morir"</span><span class="op">)</span>
+<span class="fn">get_tree</span><span class="op">().</span><span class="fn">call_group</span><span class="op">(</span><span class="st">"enemigos"</span><span class="op">,</span> <span class="st">"recibir_dano"</span><span class="op">,</span> <span class="nu">50</span><span class="op">)</span>  <span class="cm"># con argumento</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ SEÑALES ════════════════ -->
+<section class="section" id="senales">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <div class="section-info">
+      <h2>Señales (Signals)</h2>
+      <p>Las señales son el sistema de eventos de Godot. Permiten que los nodos se comuniquen sin depender directamente unos de otros — esto hace el código más limpio y flexible.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <span class="callout-icon">💡</span>
+    <div class="callout-text">
+      <strong>¿Para qué sirven las señales?</strong>
+      Imagina que un botón necesita decirle al juego que fue presionado. Con señales, el botón no necesita saber quién lo escucha — simplemente emite la señal, y cualquier cosa interesada reacciona. Esto evita dependencias directas entre nodos.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-pink" style="background:#2a0a1a">📡</div>
+      <div class="card-head-text">
+        <h3>Declarar y emitir señales</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Señal sin parámetros</span>
+<span class="kw">signal</span> <span class="va">jugador_muerto</span>
+
+<span class="cm"># Señal con parámetros tipados</span>
+<span class="kw">signal</span> <span class="va">vida_cambio</span><span class="op">(</span><span class="va">nueva_vida</span><span class="op">:</span> <span class="cl">int</span><span class="op">,</span> <span class="va">max_vida</span><span class="op">:</span> <span class="cl">int</span><span class="op">)</span>
+<span class="kw">signal</span> <span class="va">item_recogido</span><span class="op">(</span><span class="va">item</span><span class="op">:</span> <span class="cl">String</span><span class="op">,</span> <span class="va">cantidad</span><span class="op">:</span> <span class="cl">int</span><span class="op">)</span>
+<span class="kw">signal</span> <span class="va">posicion_actualizada</span><span class="op">(</span><span class="va">pos</span><span class="op">:</span> <span class="cl">Vector2</span><span class="op">)</span>
+
+<span class="cm"># Emitir señal (llamar a todos los conectados)</span>
+<span class="kw">func</span> <span class="fn">recibir_dano</span><span class="op">(</span><span class="va">dano</span><span class="op">:</span> <span class="cl">int</span><span class="op">):</span>
+    <span class="va">vida</span> <span class="op">-=</span> <span class="va">dano</span>
+    <span class="va">vida_cambio</span><span class="op">.</span><span class="fn">emit</span><span class="op">(</span><span class="va">vida</span><span class="op">,</span> <span class="nu">100</span><span class="op">)</span>   <span class="cm"># notifica a quien escuche</span>
+    <span class="kw">if</span> <span class="va">vida</span> <span class="op"><=</span> <span class="nu">0</span><span class="op">:</span>
+        <span class="va">jugador_muerto</span><span class="op">.</span><span class="fn">emit</span><span class="op">()</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">🔗</div>
+      <div class="card-head-text">
+        <h3>Conectar señales</h3>
+        <p>Desde código o desde el editor de Godot.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Conectar desde _ready()</span>
+<span class="kw">func</span> <span class="fn">_ready</span><span class="op">():</span>
+    <span class="cm"># Señal del jugador → función de este script</span>
+    <span class="va">jugador</span><span class="op">.</span><span class="va">vida_cambio</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_al_cambiar_vida</span><span class="op">)</span>
+    <span class="va">jugador</span><span class="op">.</span><span class="va">jugador_muerto</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_al_morir_jugador</span><span class="op">)</span>
+
+    <span class="cm"># Conectar con lambda (función inline)</span>
+    <span class="va">boton_pausa</span><span class="op">.</span><span class="va">pressed</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="kw">func</span><span class="op">():</span>
+        <span class="fn">get_tree</span><span class="op">().</span><span class="va">paused</span> <span class="op">=</span> <span class="op">!</span><span class="fn">get_tree</span><span class="op">().</span><span class="va">paused</span>
+    <span class="op">)</span>
+
+    <span class="cm"># Conectar con bind() — pasa datos extra</span>
+    <span class="va">boton_nivel1</span><span class="op">.</span><span class="va">pressed</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_cargar_nivel</span><span class="op">.</span><span class="fn">bind</span><span class="op">(</span><span class="st">"res://nivel1.tscn"</span><span class="op">))</span>
+    <span class="va">boton_nivel2</span><span class="op">.</span><span class="va">pressed</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_cargar_nivel</span><span class="op">.</span><span class="fn">bind</span><span class="op">(</span><span class="st">"res://nivel2.tscn"</span><span class="op">))</span>
+
+<span class="cm"># Funciones receptoras (deben tener los mismos parámetros)</span>
+<span class="kw">func</span> <span class="fn">_al_cambiar_vida</span><span class="op">(</span><span class="va">nueva</span><span class="op">:</span> <span class="cl">int</span><span class="op">,</span> <span class="va">maxima</span><span class="op">:</span> <span class="cl">int</span><span class="op">):</span>
+    <span class="va">barra_vida</span><span class="op">.</span><span class="va">value</span> <span class="op">=</span> <span class="va">nueva</span>
+    <span class="va">barra_vida</span><span class="op">.</span><span class="va">max_value</span> <span class="op">=</span> <span class="va">maxima</span>
+
+<span class="kw">func</span> <span class="fn">_al_morir_jugador</span><span class="op">():</span>
+    <span class="fn">mostrar_pantalla_muerte</span><span class="op">()</span>
+
+<span class="kw">func</span> <span class="fn">_cargar_nivel</span><span class="op">(</span><span class="va">ruta</span><span class="op">:</span> <span class="cl">String</span><span class="op">):</span>
+    <span class="fn">get_tree</span><span class="op">().</span><span class="fn">change_scene_to_file</span><span class="op">(</span><span class="va">ruta</span><span class="op">)</span>
+
+<span class="cm"># Desconectar señal</span>
+<span class="va">jugador</span><span class="op">.</span><span class="va">vida_cambio</span><span class="op">.</span><span class="fn">disconnect</span><span class="op">(</span><span class="fn">_al_cambiar_vida</span><span class="op">)</span>
+
+<span class="cm"># Verificar conexión</span>
+<span class="va">jugador</span><span class="op">.</span><span class="va">vida_cambio</span><span class="op">.</span><span class="fn">is_connected</span><span class="op">(</span><span class="fn">_al_cambiar_vida</span><span class="op">)</span>  <span class="cm"># true/false</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">⚙️</div>
+      <div class="card-head-text">
+        <h3>Flags de conexión</h3>
+        <p>Opciones especiales al conectar señales.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Flag</th><th>Qué hace</th><th>Cuándo usarlo</th></tr></thead>
+        <tbody>
+          <tr><td><code>CONNECT_DEFERRED</code></td><td class="desc">Llama a la función al final del frame actual</td><td class="desc">Cuando modificas el árbol dentro de física</td></tr>
+          <tr><td><code>CONNECT_ONE_SHOT</code></td><td class="desc">Se desconecta automáticamente tras la primera llamada</td><td class="desc">Eventos que solo deben ocurrir una vez</td></tr>
+          <tr><td><code>CONNECT_REFERENCE_COUNTED</code></td><td class="desc">Requiere múltiples disconnect() para desconectar</td><td class="desc">Conexiones contadas</td></tr>
+        </tbody>
+      </table>
+      <pre style="margin-top:14px">
+<span class="cm"># Usar flags</span>
+<span class="va">jugador</span><span class="op">.</span><span class="va">muerto</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_on_muerte</span><span class="op">,</span> <span class="cl">CONNECT_ONE_SHOT</span><span class="op">)</span>
+
+<span class="cm"># Combinar flags</span>
+<span class="va">obj</span><span class="op">.</span><span class="va">signal_name</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">fn</span><span class="op">,</span> <span class="cl">CONNECT_DEFERRED</span> <span class="op">|</span> <span class="cl">CONNECT_ONE_SHOT</span><span class="op">)</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ INPUT ════════════════ -->
+<section class="section" id="input">
+  <div class="section-header">
+    <div class="section-num">11</div>
+    <div class="section-info">
+      <h2>Input (Controles)</h2>
+      <p>Cómo detectar y manejar teclado, ratón, gamepad y pantalla táctil.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-red">🎮</div>
+      <div class="card-head-text">
+        <h3>Input singleton — acceso directo</h3>
+        <p>La clase <code>Input</code> permite consultar el estado actual de los controles en cualquier momento (normalmente en <code>_process</code> o <code>_physics_process</code>).</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Método</th><th>Retorna</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>Input.is_action_pressed("saltar")</code></td><td class="desc">bool</td><td class="desc">¿Se mantiene presionada la acción?</td></tr>
+          <tr><td><code>Input.is_action_just_pressed("saltar")</code></td><td class="desc">bool</td><td class="desc">¿Se acaba de presionar este frame?</td></tr>
+          <tr><td><code>Input.is_action_just_released("saltar")</code></td><td class="desc">bool</td><td class="desc">¿Se acaba de soltar este frame?</td></tr>
+          <tr><td><code>Input.get_action_strength("mover")</code></td><td class="desc">float 0.0–1.0</td><td class="desc">Intensidad (útil para gamepad)</td></tr>
+          <tr><td><code>Input.get_axis("izq","der")</code></td><td class="desc">float -1.0 a 1.0</td><td class="desc">Eje entre dos acciones opuestas</td></tr>
+          <tr><td><code>Input.get_vector("izq","der","arr","ab")</code></td><td class="desc">Vector2</td><td class="desc">Vector 2D normalizado para 4 acciones</td></tr>
+          <tr><td><code>Input.get_mouse_position()</code></td><td class="desc">Vector2</td><td class="desc">Posición del ratón en la ventana</td></tr>
+          <tr><td><code>Input.is_mouse_button_pressed(b)</code></td><td class="desc">bool</td><td class="desc">¿Botón del ratón presionado?</td></tr>
+          <tr><td><code>Input.set_mouse_mode(m)</code></td><td class="desc">void</td><td class="desc">Controlar visibilidad/captura del cursor</td></tr>
+        </tbody>
+      </table>
+      <pre style="margin-top:14px">
+<span class="cm"># Movimiento típico con teclado/gamepad</span>
+<span class="kw">func</span> <span class="fn">_physics_process</span><span class="op">(</span><span class="va">delta</span><span class="op">:</span> <span class="cl">float</span><span class="op">):</span>
+    <span class="kw">var</span> <span class="va">dir</span> <span class="op">=</span> <span class="cl">Input</span><span class="op">.</span><span class="fn">get_vector</span><span class="op">(</span><span class="st">"mover_izq"</span><span class="op">,</span> <span class="st">"mover_der"</span><span class="op">,</span> <span class="st">"mover_arr"</span><span class="op">,</span> <span class="st">"mover_ab"</span><span class="op">)</span>
+    <span class="va">velocity</span> <span class="op">=</span> <span class="va">dir</span> <span class="op">*</span> <span class="va">velocidad</span>
+    <span class="fn">move_and_slide</span><span class="op">()</span>
+
+    <span class="kw">if</span> <span class="cl">Input</span><span class="op">.</span><span class="fn">is_action_just_pressed</span><span class="op">(</span><span class="st">"saltar"</span><span class="op">)</span> <span class="kw">and</span> <span class="fn">is_on_floor</span><span class="op">():</span>
+        <span class="va">velocity</span><span class="op">.</span><span class="va">y</span> <span class="op">=</span> <span class="op">-</span><span class="va">fuerza_salto</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">⌨️</div>
+      <div class="card-head-text">
+        <h3>_input() y eventos de input</h3>
+        <p>Para reaccionar a eventos específicos de teclado o ratón.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="kw">func</span> <span class="fn">_input</span><span class="op">(</span><span class="va">evento</span><span class="op">:</span> <span class="cl">InputEvent</span><span class="op">):</span>
+    <span class="cm"># Evento de teclado</span>
+    <span class="kw">if</span> <span class="va">evento</span> <span class="kw">is</span> <span class="cl">InputEventKey</span><span class="op">:</span>
+        <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="va">pressed</span> <span class="kw">and</span> <span class="op">!</span><span class="va">evento</span><span class="op">.</span><span class="va">echo</span><span class="op">:</span>  <span class="cm"># presionado, no repetido</span>
+            <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="va">keycode</span> <span class="op">==</span> <span class="cl">KEY_ESCAPE</span><span class="op">:</span>
+                <span class="fn">pausar_juego</span><span class="op">()</span>
+            <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="va">keycode</span> <span class="op">==</span> <span class="cl">KEY_F</span><span class="op">:</span>
+                <span class="fn">pantalla_completa</span><span class="op">()</span>
+
+    <span class="cm"># Clic de ratón</span>
+    <span class="kw">if</span> <span class="va">evento</span> <span class="kw">is</span> <span class="cl">InputEventMouseButton</span><span class="op">:</span>
+        <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="va">pressed</span><span class="op">:</span>
+            <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="va">button_index</span> <span class="op">==</span> <span class="cl">MOUSE_BUTTON_LEFT</span><span class="op">:</span>
+                <span class="fn">disparar</span><span class="op">(</span><span class="va">evento</span><span class="op">.</span><span class="va">position</span><span class="op">)</span>
+            <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="va">button_index</span> <span class="op">==</span> <span class="cl">MOUSE_BUTTON_WHEEL_UP</span><span class="op">:</span>
+                <span class="fn">zoom_in</span><span class="op">()</span>
+
+    <span class="cm"># Movimiento del ratón</span>
+    <span class="kw">if</span> <span class="va">evento</span> <span class="kw">is</span> <span class="cl">InputEventMouseMotion</span><span class="op">:</span>
+        <span class="kw">var</span> <span class="va">delta_mov</span> <span class="op">=</span> <span class="va">evento</span><span class="op">.</span><span class="va">relative</span>  <span class="cm"># cuánto se movió</span>
+        <span class="fn">rotar_camara</span><span class="op">(</span><span class="va">delta_mov</span><span class="op">)</span>
+
+    <span class="cm"># Verificar si fue un input action, luego marcar como procesado</span>
+    <span class="kw">if</span> <span class="va">evento</span><span class="op">.</span><span class="fn">is_action</span><span class="op">(</span><span class="st">"saltar"</span><span class="op">):</span>
+        <span class="fn">get_viewport</span><span class="op">().</span><span class="fn">set_input_as_handled</span><span class="op">()</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ MATH ════════════════ -->
+<section class="section" id="math">
+  <div class="section-header">
+    <div class="section-num">12</div>
+    <div class="section-info">
+      <h2>Matemáticas</h2>
+      <p>GDScript incluye decenas de funciones matemáticas globales, trigonométricas y de interpolación.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">🔢</div>
+      <div class="card-head-text">
+        <h3>Funciones matemáticas globales</h3>
+        <p>Disponibles en cualquier script sin necesidad de importar nada.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Función</th><th>Descripción</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>abs(x)</code></td><td class="desc">Valor absoluto</td><td class="ex">abs(-5) → 5</td></tr>
+          <tr><td><code>sign(x)</code></td><td class="desc">Signo: -1, 0 ó 1</td><td class="ex">sign(-7) → -1</td></tr>
+          <tr><td><code>floor(x)</code></td><td class="desc">Redondear hacia abajo</td><td class="ex">floor(3.9) → 3.0</td></tr>
+          <tr><td><code>ceil(x)</code></td><td class="desc">Redondear hacia arriba</td><td class="ex">ceil(3.1) → 4.0</td></tr>
+          <tr><td><code>round(x)</code></td><td class="desc">Redondear al más cercano</td><td class="ex">round(3.5) → 4.0</td></tr>
+          <tr><td><code>clamp(v, mn, mx)</code></td><td class="desc">Limitar entre mínimo y máximo</td><td class="ex">clamp(150, 0, 100) → 100</td></tr>
+          <tr><td><code>min(a, b)</code></td><td class="desc">El menor de dos valores</td><td class="ex">min(3, 7) → 3</td></tr>
+          <tr><td><code>max(a, b)</code></td><td class="desc">El mayor de dos valores</td><td class="ex">max(3, 7) → 7</td></tr>
+          <tr><td><code>sqrt(x)</code></td><td class="desc">Raíz cuadrada</td><td class="ex">sqrt(16) → 4.0</td></tr>
+          <tr><td><code>pow(x, y)</code></td><td class="desc">x elevado a y</td><td class="ex">pow(2, 8) → 256</td></tr>
+          <tr><td><code>lerp(a, b, t)</code></td><td class="desc">Interpolación lineal. t=0 → a, t=1 → b</td><td class="ex">lerp(0, 100, 0.5) → 50</td></tr>
+          <tr><td><code>lerp_angle(a, b, t)</code></td><td class="desc">Interpolación de ángulos (toma el camino más corto)</td><td class="ex">—</td></tr>
+          <tr><td><code>inverse_lerp(a, b, v)</code></td><td class="desc">Inverso del lerp — retorna t</td><td class="ex">inverse_lerp(0, 100, 25) → 0.25</td></tr>
+          <tr><td><code>remap(v, a, b, c, d)</code></td><td class="desc">Re-mapear un valor de un rango a otro</td><td class="ex">remap(5, 0, 10, 0, 100) → 50</td></tr>
+          <tr><td><code>smoothstep(e0, e1, x)</code></td><td class="desc">Interpolación suave (curva S)</td><td class="ex">—</td></tr>
+          <tr><td><code>move_toward(a, b, d)</code></td><td class="desc">Mueve a hacia b, máximo d</td><td class="ex">move_toward(0, 10, 3) → 3</td></tr>
+          <tr><td><code>snapped(v, step)</code></td><td class="desc">Ajustar v a la cuadrícula step</td><td class="ex">snapped(7.3, 5) → 5.0</td></tr>
+          <tr><td><code>sin(x)</code></td><td class="desc">Seno (en radianes)</td><td class="ex">sin(PI/2) → 1.0</td></tr>
+          <tr><td><code>cos(x)</code></td><td class="desc">Coseno (en radianes)</td><td class="ex">cos(0) → 1.0</td></tr>
+          <tr><td><code>tan(x)</code></td><td class="desc">Tangente (en radianes)</td><td class="ex">—</td></tr>
+          <tr><td><code>atan2(y, x)</code></td><td class="desc">Ángulo de un vector (muy usado)</td><td class="ex">atan2(1, 1) → PI/4</td></tr>
+          <tr><td><code>deg_to_rad(d)</code></td><td class="desc">Grados → radianes</td><td class="ex">deg_to_rad(180) → PI</td></tr>
+          <tr><td><code>rad_to_deg(r)</code></td><td class="desc">Radianes → grados</td><td class="ex">rad_to_deg(PI) → 180</td></tr>
+          <tr><td><code>is_equal_approx(a, b)</code></td><td class="desc">Compara floats con tolerancia (evita errores de precisión)</td><td class="ex">is_equal_approx(0.1+0.2, 0.3) → true</td></tr>
+          <tr><td><code>is_zero_approx(x)</code></td><td class="desc">¿Es aproximadamente cero?</td><td class="ex">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🎲</div>
+      <div class="card-head-text">
+        <h3>Números aleatorios</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Funciones globales rápidas</span>
+<span class="fn">randomize</span><span class="op">()</span>                 <span class="cm"># inicializa la semilla aleatoria (hacer en _ready)</span>
+<span class="fn">randi</span><span class="op">()</span>                     <span class="cm"># entero aleatorio (cualquier valor)</span>
+<span class="fn">randf</span><span class="op">()</span>                     <span class="cm"># float entre 0.0 y 1.0</span>
+<span class="fn">randi_range</span><span class="op">(</span><span class="nu">1</span><span class="op">,</span> <span class="nu">6</span><span class="op">)</span>          <span class="cm"># dado de 6 caras: 1, 2, 3, 4, 5 ó 6</span>
+<span class="fn">randf_range</span><span class="op">(</span><span class="op">-</span><span class="nu">1.0</span><span class="op">,</span> <span class="nu">1.0</span><span class="op">)</span>     <span class="cm"># float entre -1 y 1</span>
+<span class="fn">randfn</span><span class="op">(</span><span class="nu">100.0</span><span class="op">,</span> <span class="nu">15.0</span><span class="op">)</span>        <span class="cm"># distribución normal (media=100, desv=15)</span>
+
+<span class="cm"># RandomNumberGenerator: control total de la semilla</span>
+<span class="kw">var</span> <span class="va">rng</span> <span class="op">=</span> <span class="cl">RandomNumberGenerator</span><span class="op">.</span><span class="kw">new</span><span class="op">()</span>
+<span class="va">rng</span><span class="op">.</span><span class="va">seed</span> <span class="op">=</span> <span class="fn">hash</span><span class="op">(</span><span class="st">"mi_mundo_42"</span><span class="op">)</span>   <span class="cm"># mismo seed → mismos resultados siempre</span>
+<span class="va">rng</span><span class="op">.</span><span class="fn">randi_range</span><span class="op">(</span><span class="nu">0</span><span class="op">,</span> <span class="nu">100</span><span class="op">)</span>
+<span class="va">rng</span><span class="op">.</span><span class="fn">randf</span><span class="op">()</span>
+<span class="va">rng</span><span class="op">.</span><span class="fn">shuffle</span><span class="op">(</span><span class="va">array</span><span class="op">)</span>            <span class="cm"># mezcla un array con el rng propio</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ VECTORES ════════════════ -->
+<section class="section" id="vectores">
+  <div class="section-header">
+    <div class="section-num">13</div>
+    <div class="section-info">
+      <h2>Vectores & Transforms</h2>
+      <p>Los vectores son fundamentales en desarrollo de juegos — representan posiciones, direcciones y velocidades. Godot tiene tipos dedicados con muchas operaciones útiles.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">↗️</div>
+      <div class="card-head-text">
+        <h3>Vector2 — posición y dirección 2D</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Crear</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">(</span><span class="nu">3.0</span><span class="op">,</span> <span class="nu">4.0</span><span class="op">)</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">.</span><span class="va">ZERO</span>     <span class="cm"># (0, 0)</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">.</span><span class="va">ONE</span>      <span class="cm"># (1, 1)</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">.</span><span class="va">UP</span>       <span class="cm"># (0, -1) ← en Godot Y+ es hacia abajo</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">.</span><span class="va">DOWN</span>     <span class="cm"># (0,  1)</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">.</span><span class="va">LEFT</span>     <span class="cm"># (-1, 0)</span>
+<span class="kw">var</span> <span class="va">v</span> <span class="op">=</span> <span class="cl">Vector2</span><span class="op">.</span><span class="va">RIGHT</span>    <span class="cm"># (1,  0)</span>
+
+<span class="cm"># Acceder a componentes</span>
+<span class="va">v</span><span class="op">.</span><span class="va">x</span>     <span class="va">v</span><span class="op">.</span><span class="va">y</span>
+
+<span class="cm"># Aritmética</span>
+<span class="va">v1</span> <span class="op">+</span> <span class="va">v2</span>    <span class="va">v1</span> <span class="op">-</span> <span class="va">v2</span>    <span class="va">v</span> <span class="op">*</span> <span class="nu">2.0</span>    <span class="va">v</span> <span class="op">/</span> <span class="nu">2.0</span>    <span class="op">-</span><span class="va">v</span>
+</pre>
+      <table class="tbl" style="margin-top:12px">
+        <thead><tr><th>Método</th><th>Qué retorna</th></tr></thead>
+        <tbody>
+          <tr><td><code>v.length()</code></td><td class="desc">Longitud (magnitud) del vector</td></tr>
+          <tr><td><code>v.length_squared()</code></td><td class="desc">Longitud al cuadrado (más rápido, sin raíz)</td></tr>
+          <tr><td><code>v.normalized()</code></td><td class="desc">Vector con misma dirección pero longitud 1.0</td></tr>
+          <tr><td><code>v.distance_to(u)</code></td><td class="desc">Distancia entre dos puntos</td></tr>
+          <tr><td><code>v.direction_to(u)</code></td><td class="desc">Vector normalizado apuntando de v hacia u</td></tr>
+          <tr><td><code>v.dot(u)</code></td><td class="desc">Producto punto (positivo = misma dir., negativo = opuesta)</td></tr>
+          <tr><td><code>v.cross(u)</code></td><td class="desc">Producto cruzado (z del resultado 3D)</td></tr>
+          <tr><td><code>v.angle()</code></td><td class="desc">Ángulo del vector respecto al eje X (en radianes)</td></tr>
+          <tr><td><code>v.angle_to(u)</code></td><td class="desc">Ángulo entre dos vectores</td></tr>
+          <tr><td><code>v.rotated(a)</code></td><td class="desc">Vector rotado a radianes</td></tr>
+          <tr><td><code>v.lerp(u, t)</code></td><td class="desc">Interpolación lineal entre dos vectores</td></tr>
+          <tr><td><code>v.slerp(u, t)</code></td><td class="desc">Interpolación esférica (para direcciones)</td></tr>
+          <tr><td><code>v.reflect(n)</code></td><td class="desc">Reflexión respecto a una normal</td></tr>
+          <tr><td><code>v.abs()</code></td><td class="desc">Valor absoluto de cada componente</td></tr>
+          <tr><td><code>v.clamp(mn, mx)</code></td><td class="desc">Limitar cada componente</td></tr>
+          <tr><td><code>v.move_toward(u, d)</code></td><td class="desc">Mover hacia u, máximo d unidades</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ESCENAS ════════════════ -->
+<section class="section" id="escenas">
+  <div class="section-header">
+    <div class="section-num">14</div>
+    <div class="section-info">
+      <h2>Escenas & SceneTree</h2>
+      <p>Cargar, instanciar y cambiar escenas. También control global de la ejecución del juego.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-green">🏗️</div>
+      <div class="card-head-text">
+        <h3>Instanciar escenas</h3>
+        <p>La forma correcta de crear copias de una escena (.tscn) desde código.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># preload(): carga al inicio del script (mejor rendimiento, ruta fija)</span>
+<span class="kw">var</span> <span class="va">EscenaBala</span> <span class="op">=</span> <span class="fn">preload</span><span class="op">(</span><span class="st">"res://objetos/Bala.tscn"</span><span class="op">)</span>
+
+<span class="cm"># load(): carga en el momento de llamarlo (ruta puede ser dinámica)</span>
+<span class="kw">var</span> <span class="va">nombre_nivel</span> <span class="op">=</span> <span class="st">"nivel_1"</span>
+<span class="kw">var</span> <span class="va">escena</span> <span class="op">=</span> <span class="fn">load</span><span class="op">(</span><span class="st">"res://niveles/"</span> <span class="op">+</span> <span class="va">nombre_nivel</span> <span class="op">+</span> <span class="st">".tscn"</span><span class="op">)</span>
+
+<span class="cm"># instantiate(): crea una copia (instancia) de la escena</span>
+<span class="kw">func</span> <span class="fn">disparar</span><span class="op">():</span>
+    <span class="kw">var</span> <span class="va">bala</span> <span class="op">=</span> <span class="va">EscenaBala</span><span class="op">.</span><span class="fn">instantiate</span><span class="op">()</span>
+    <span class="cm"># Configurar antes de agregar al árbol</span>
+    <span class="va">bala</span><span class="op">.</span><span class="va">position</span> <span class="op">=</span> <span class="va">position</span>
+    <span class="va">bala</span><span class="op">.</span><span class="va">rotation</span> <span class="op">=</span> <span class="va">rotation</span>
+    <span class="va">bala</span><span class="op">.</span><span class="va">velocidad</span> <span class="op">=</span> <span class="nu">500.0</span>
+    <span class="cm"># Agregar al árbol de escena</span>
+    <span class="fn">get_parent</span><span class="op">().</span><span class="fn">add_child</span><span class="op">(</span><span class="va">bala</span><span class="op">)</span>
+
+    <span class="cm"># Eliminar cuando ya no se necesite</span>
+    <span class="cm"># (normalmente desde la propia bala cuando choca)</span>
+    <span class="cm"># bala.queue_free()</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🌍</div>
+      <div class="card-head-text">
+        <h3>SceneTree — control del juego</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Método/Propiedad</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>get_tree().change_scene_to_file("res://...")</code></td><td class="desc">Cambiar a una escena por ruta</td></tr>
+          <tr><td><code>get_tree().change_scene_to_packed(escena)</code></td><td class="desc">Cambiar a una PackedScene cargada</td></tr>
+          <tr><td><code>get_tree().reload_current_scene()</code></td><td class="desc">Reiniciar la escena actual</td></tr>
+          <tr><td><code>get_tree().paused = true</code></td><td class="desc">Pausar el juego</td></tr>
+          <tr><td><code>get_tree().quit()</code></td><td class="desc">Cerrar la aplicación</td></tr>
+          <tr><td><code>get_tree().current_scene</code></td><td class="desc">Nodo de la escena activa</td></tr>
+          <tr><td><code>get_tree().get_frame()</code></td><td class="desc">Número de frame actual</td></tr>
+          <tr><td><code>get_tree().get_node_count()</code></td><td class="desc">Total de nodos en el árbol</td></tr>
+          <tr><td><code>get_tree().create_timer(t)</code></td><td class="desc">Crea un timer de un solo uso</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-teal" style="margin-top:14px">
+        <span class="callout-icon">🌟</span>
+        <div class="callout-text">
+          <strong>Autoload (Singletons)</strong>
+          Para datos que persisten entre escenas (puntuación, configuración, inventario), crea un script y agrégalo en <strong>Proyecto → Configuración del Proyecto → Autoloads</strong>. Ese script existirá durante toda la sesión del juego y podrás accederlo desde cualquier script por su nombre.
+          <pre style="background:rgba(255,255,255,0.04);margin-top:8px;padding:10px;border-radius:6px;font-size:0.78rem">
+<span class="cm"># Desde cualquier script, si el autoload se llama "GameManager":</span>
+<span class="cl">GameManager</span><span class="op">.</span><span class="va">puntuacion</span> <span class="op">+=</span> <span class="nu">100</span>
+<span class="cl">GameManager</span><span class="op">.</span><span class="fn">guardar_partida</span><span class="op">()</span>
+<span class="cl">GameManager</span><span class="op">.</span><span class="va">nivel_actual</span> <span class="op">=</span> <span class="nu">2</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ TIEMPO ════════════════ -->
+<section class="section" id="tiempo">
+  <div class="section-header">
+    <div class="section-num">15</div>
+    <div class="section-info">
+      <h2>Tiempo & Timers</h2>
+      <p>Temporizar eventos, crear retrasos y animar valores a lo largo del tiempo.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-teal">⏰</div>
+      <div class="card-head-text">
+        <h3>Formas de medir el tiempo</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># delta: tiempo desde el frame anterior (en _process y _physics_process)</span>
+<span class="kw">func</span> <span class="fn">_process</span><span class="op">(</span><span class="va">delta</span><span class="op">:</span> <span class="cl">float</span><span class="op">):</span>
+    <span class="va">tiempo_total</span> <span class="op">+=</span> <span class="va">delta</span>            <span class="cm"># acumular tiempo de juego</span>
+
+<span class="cm"># Timer de un solo uso (con await)</span>
+<span class="kw">await</span> <span class="fn">get_tree</span><span class="op">().</span><span class="fn">create_timer</span><span class="op">(</span><span class="nu">2.0</span><span class="op">).</span><span class="va">timeout</span>  <span class="cm"># esperar 2 segundos</span>
+
+<span class="cm"># Time singleton — tiempo del sistema</span>
+<span class="cl">Time</span><span class="op">.</span><span class="fn">get_ticks_msec</span><span class="op">()</span>              <span class="cm"># milisegundos desde el inicio</span>
+<span class="cl">Time</span><span class="op">.</span><span class="fn">get_ticks_usec</span><span class="op">()</span>              <span class="cm"># microsegundos</span>
+<span class="cl">Time</span><span class="op">.</span><span class="fn">get_unix_time_from_system</span><span class="op">()</span>   <span class="cm"># timestamp UNIX</span>
+
+<span class="cm"># Ejemplo: medir cuánto tarda algo</span>
+<span class="kw">var</span> <span class="va">inicio</span> <span class="op">=</span> <span class="cl">Time</span><span class="op">.</span><span class="fn">get_ticks_msec</span><span class="op">()</span>
+<span class="fn">operacion_lenta</span><span class="op">()</span>
+<span class="fn">print</span><span class="op">(</span><span class="st">"Tardó: "</span><span class="op">,</span> <span class="cl">Time</span><span class="op">.</span><span class="fn">get_ticks_msec</span><span class="op">() -</span> <span class="va">inicio</span><span class="op">,</span> <span class="st">"ms"</span><span class="op">)</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">⏱️</div>
+      <div class="card-head-text">
+        <h3>Nodo Timer</h3>
+        <p>El nodo Timer es ideal para eventos recurrentes o con retraso.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="an">@onready</span> <span class="kw">var</span> <span class="va">timer_spawn</span> <span class="op">=</span> <span class="op">$</span><span class="cl">TimerSpawn</span>
+
+<span class="kw">func</span> <span class="fn">_ready</span><span class="op">():</span>
+    <span class="va">timer_spawn</span><span class="op">.</span><span class="va">wait_time</span> <span class="op">=</span> <span class="nu">3.0</span>     <span class="cm"># cada 3 segundos</span>
+    <span class="va">timer_spawn</span><span class="op">.</span><span class="va">one_shot</span> <span class="op">=</span> <span class="kw">false</span>   <span class="cm"># false = se repite, true = una vez</span>
+    <span class="va">timer_spawn</span><span class="op">.</span><span class="va">autostart</span> <span class="op">=</span> <span class="kw">true</span>  <span class="cm"># empieza solo (también desde Inspector)</span>
+    <span class="va">timer_spawn</span><span class="op">.</span><span class="va">timeout</span><span class="op">.</span><span class="fn">connect</span><span class="op">(</span><span class="fn">_spawn_enemigo</span><span class="op">)</span>
+
+<span class="kw">func</span> <span class="fn">_spawn_enemigo</span><span class="op">():</span>
+    <span class="fn">print</span><span class="op">(</span><span class="st">"¡Enemigo spawneado! Quedan: "</span><span class="op">,</span> <span class="va">timer_spawn</span><span class="op">.</span><span class="va">time_left</span><span class="op">,</span> <span class="st">"s"</span><span class="op">)</span>
+
+<span class="cm"># Controlar el timer</span>
+<span class="va">timer_spawn</span><span class="op">.</span><span class="fn">start</span><span class="op">()</span>        <span class="cm"># empezar (usa wait_time configurado)</span>
+<span class="va">timer_spawn</span><span class="op">.</span><span class="fn">start</span><span class="op">(</span><span class="nu">5.0</span><span class="op">)</span>     <span class="cm"># empezar con tiempo específico</span>
+<span class="va">timer_spawn</span><span class="op">.</span><span class="fn">stop</span><span class="op">()</span>         <span class="cm"># detener</span>
+<span class="va">timer_spawn</span><span class="op">.</span><span class="fn">is_stopped</span><span class="op">()</span>   <span class="cm"># ¿está detenido?</span>
+<span class="va">timer_spawn</span><span class="op">.</span><span class="va">time_left</span>       <span class="cm"># cuántos segundos faltan</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-purple">🌊</div>
+      <div class="card-head-text">
+        <h3>Tweens — animar valores</h3>
+        <p>Los Tweens animan cualquier propiedad a lo largo del tiempo, con curvas de aceleración.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Crear un Tween</span>
+<span class="kw">var</span> <span class="va">tw</span> <span class="op">=</span> <span class="fn">create_tween</span><span class="op">()</span>
+
+<span class="cm"># Animar propiedad: nodo, propiedad, valor_final, duración</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">tween_property</span><span class="op">(</span><span class="va">sprite</span><span class="op">,</span> <span class="st">"modulate:a"</span><span class="op">,</span> <span class="nu">0.0</span><span class="op">,</span> <span class="nu">0.5</span><span class="op">)</span>  <span class="cm"># desvanecer en 0.5s</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">tween_property</span><span class="op">(</span><span class="va">player</span><span class="op">,</span> <span class="st">"position"</span><span class="op">,</span> <span class="cl">Vector2</span><span class="op">(</span><span class="nu">500</span><span class="op">,</span><span class="nu">0</span><span class="op">),</span> <span class="nu">1.0</span><span class="op">)</span>
+
+<span class="cm"># Llamar función al terminar</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">tween_callback</span><span class="op">(</span><span class="fn">queue_free</span><span class="op">)</span>   <span class="cm"># eliminar el nodo al terminar</span>
+
+<span class="cm"># Pausa entre animaciones</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">tween_interval</span><span class="op">(</span><span class="nu">0.5</span><span class="op">)</span>          <span class="cm"># esperar 0.5s antes de continuar</span>
+
+<span class="cm"># Configurar curva de aceleración</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">set_ease</span><span class="op">(</span><span class="cl">Tween</span><span class="op">.</span><span class="va">EASE_IN_OUT</span><span class="op">)</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">set_trans</span><span class="op">(</span><span class="cl">Tween</span><span class="op">.</span><span class="va">TRANS_BOUNCE</span><span class="op">)</span>  <span class="cm"># rebota al llegar</span>
+
+<span class="cm"># Repetir N veces (0 = infinito)</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">set_loops</span><span class="op">(</span><span class="nu">3</span><span class="op">)</span>
+
+<span class="cm"># Controlar</span>
+<span class="va">tw</span><span class="op">.</span><span class="fn">pause</span><span class="op">()</span>    <span class="va">tw</span><span class="op">.</span><span class="fn">resume</span><span class="op">()</span>    <span class="va">tw</span><span class="op">.</span><span class="fn">kill</span><span class="op">()</span>
+</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ DEBUG ════════════════ -->
+<section class="section" id="debug">
+  <div class="section-header">
+    <div class="section-num">16</div>
+    <div class="section-info">
+      <h2>Debug & Utilidades</h2>
+      <p>Herramientas para imprimir información, detectar errores y obtener datos del sistema.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-red">🖨️</div>
+      <div class="card-head-text">
+        <h3>Funciones de print</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Función</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>print(a, b, c)</code></td><td class="desc">Imprime los valores separados por espacios, con salto de línea</td></tr>
+          <tr><td><code>print_rich("texto [b]bold[/b]")</code></td><td class="desc">Imprime con formato BBCode (negritas, colores, etc.)</td></tr>
+          <tr><td><code>printerr("mensaje")</code></td><td class="desc">Imprime en stderr (aparece en rojo en la consola)</td></tr>
+          <tr><td><code>printt(a, b, c)</code></td><td class="desc">Imprime separados por tabulaciones</td></tr>
+          <tr><td><code>prints(a, b, c)</code></td><td class="desc">Imprime separados por espacios (igual que print)</td></tr>
+          <tr><td><code>printraw("texto")</code></td><td class="desc">Imprime sin salto de línea al final</td></tr>
+          <tr><td><code>push_warning("aviso")</code></td><td class="desc">Registra una advertencia (aparece en amarillo)</td></tr>
+          <tr><td><code>push_error("error")</code></td><td class="desc">Registra un error (aparece en rojo)</td></tr>
+          <tr><td><code>print_stack()</code></td><td class="desc">Imprime la pila de llamadas actual (para encontrar dónde está el bug)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-orange">✅</div>
+      <div class="card-head-text">
+        <h3>assert — verificar condiciones</h3>
+        <p><code>assert</code> detiene el juego si la condición es falsa. Solo funciona en modo Debug.</p>
+      </div>
+    </div>
+    <div class="card-body">
+      <pre>
+<span class="cm"># Si la condición falla, el juego se detiene con un error</span>
+<span class="fn">assert</span><span class="op">(</span><span class="va">vida</span> <span class="op">>=</span> <span class="nu">0</span><span class="op">)</span>
+<span class="fn">assert</span><span class="op">(</span><span class="va">jugador</span> <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span>
+<span class="fn">assert</span><span class="op">(</span><span class="va">nivel</span> <span class="op">>=</span> <span class="nu">1</span> <span class="kw">and</span> <span class="va">nivel</span> <span class="op"><=</span> <span class="nu">10</span><span class="op">,</span> <span class="st">"El nivel debe estar entre 1 y 10"</span><span class="op">)</span>
+<span class="cm">#                                    ↑ mensaje de error personalizado</span>
+
+<span class="cm"># Buena práctica: usar assert para detectar problemas temprano</span>
+<span class="kw">func</span> <span class="fn">equipar_arma</span><span class="op">(</span><span class="va">arma</span><span class="op">:</span> <span class="cl">ItemData</span><span class="op">):</span>
+    <span class="fn">assert</span><span class="op">(</span><span class="va">arma</span> <span class="op">!=</span> <span class="kw">null</span><span class="op">,</span> <span class="st">"equipar_arma: el arma no puede ser null"</span><span class="op">)</span>
+    <span class="fn">assert</span><span class="op">(</span><span class="va">arma</span><span class="op">.</span><span class="va">dano</span> <span class="op">></span> <span class="nu">0</span><span class="op">,</span>  <span class="st">"equipar_arma: el daño debe ser positivo"</span><span class="op">)</span>
+    <span class="cm"># ... código de equipar</span>
+</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon icon-blue">🖥️</div>
+      <div class="card-head-text">
+        <h3>OS y Engine — información del sistema</h3>
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="tbl">
+        <thead><tr><th>Propiedad/Método</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>OS.get_name()</code></td><td class="desc">"Windows" · "macOS" · "Linux" · "Android" · "iOS"</td></tr>
+          <tr><td><code>OS.get_user_data_dir()</code></td><td class="desc">Ruta donde guardar datos del usuario (user://)</td></tr>
+          <tr><td><code>OS.open_url("https://...")</code></td><td class="desc">Abre una URL en el navegador</td></tr>
+          <tr><td><code>OS.shell_open(ruta)</code></td><td class="desc">Abre un archivo con el programa predeterminado</td></tr>
+          <tr><td><code>Engine.get_frames_per_second()</code></td><td class="desc">FPS actuales del juego</td></tr>
+          <tr><td><code>Engine.time_scale</code></td><td class="desc">Velocidad del tiempo (1.0=normal, 0.5=cámara lenta, 0=pausa)</td></tr>
+          <tr><td><code>Engine.target_fps</code></td><td class="desc">FPS objetivo (0 = sin límite)</td></tr>
+          <tr><td><code>Engine.is_editor_hint()</code></td><td class="desc">¿Se está ejecutando en el editor? (útil con @tool)</td></tr>
+          <tr><td><code>Performance.get_monitor(m)</code></td><td class="desc">Métricas de rendimiento (FPS, memoria, etc.)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+</main></div></body></html>
