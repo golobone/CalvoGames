@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control Tenda SP3</title>
+<style>
+body {
+    font-family: sans-serif;
+    text-align: center;
+    margin-top: 50px;
+    background: #f4f4f4;
+}
+
+button {
+    padding: 15px 30px;
+    font-size: 18px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin: 8px;
+    cursor: pointer;
+}
+
+.on { background: #28a745; }
+.off { background: #dc3545; }
+
+#mensaje {
+    margin-top: 25px;
+    font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Control Tenda SP3</h2>
+
+<button class="on" onclick="cambiar(1)">Encender</button>
+<button class="off" onclick="cambiar(0)">Apagar</button>
+
+<p id="mensaje">Conectado a la red local</p>
+
+<script>
+function cambiar(estado) {
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("POST", "http://192.168.1.66:5000/setSta", true);
+
+    xhr.setRequestHeader("Content-Type", "text/plain");
+
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            document.getElementById("mensaje").innerHTML =
+                "Orden enviada. Código: " + xhr.status;
+        }
+    };
+
+    xhr.onerror = function() {
+        document.getElementById("mensaje").innerHTML =
+            "No se pudo comprobar la respuesta.";
+    };
+
+    xhr.send(JSON.stringify({
+        status: estado
+    }));
+
+    document.getElementById("mensaje").innerHTML =
+        estado === 1 ? "Enviando orden de encendido..." :
+                       "Enviando orden de apagado...";
+}
+</script>
+
+</body>
+</html>
