@@ -1,30 +1,384 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Control Tenda SP3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-<link rel="apple-touch-icon" sizes="144x144" href="/icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/icon.png">
+<title>Control SP3</title>
 
+<link rel="apple-touch-icon" href="/icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Control SP3">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
+<style>
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    background: #000;
+    color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    padding: 25px;
+}
+
+.main {
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 25px;
+    border-bottom: 1px solid #242424;
+}
+
+.brand {
+    font-size: 19px;
+    font-weight: 650;
+    letter-spacing: -.5px;
+}
+
+.header-right {
+    color: #777;
+    font-size: 12px;
+}
+
+h1 {
+    font-size: 27px;
+    font-weight: 650;
+    letter-spacing: -.8px;
+    margin: 30px 0 8px;
+}
+
+.subtitle {
+    color: #777;
+    font-size: 13px;
+    margin-bottom: 30px;
+}
+
+.connection {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #888;
+    font-size: 12px;
+    margin-bottom: 22px;
+}
+
+.connection i {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #777;
+}
+
+.connection.online i {
+    background: #30d158;
+}
+
+.connection.error i {
+    background: #ff453a;
+}
+
+.card {
+    background: #111;
+    border: 1px solid #252525;
+    border-radius: 13px;
+    padding: 21px;
+    margin-bottom: 16px;
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #242424;
+}
+
+.device {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.device-icon {
+    width: 43px;
+    height: 43px;
+    background: #1c1c1e;
+    border: 1px solid #303030;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-icon svg {
+    width: 23px;
+    height: 23px;
+    stroke: #0a84ff;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.device-info strong {
+    display: block;
+    font-size: 14px;
+}
+
+.device-info small {
+    display: block;
+    color: #777;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+.badge {
+    font-size: 10px;
+    color: #30d158;
+    background: #14231a;
+    padding: 6px 9px;
+    border-radius: 6px;
+}
+
+.section-title {
+    font-size: 11px;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 23px 0 13px;
+}
+
+.buttons {
+    display: flex;
+    gap: 11px;
+}
+
+button {
+    border: 1px solid #303030;
+    border-radius: 9px;
+    padding: 15px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    min-height: 52px;
+    -webkit-appearance: none;
+}
+
+button:active {
+    opacity: .65;
+}
+
+button:disabled {
+    opacity: .4;
+}
+
+.on {
+    background: #0a84ff;
+    color: white;
+    border-color: #0a84ff;
+}
+
+.off {
+    background: #202020;
+    color: #f5f5f7;
+}
+
+.result {
+    margin-top: 17px;
+    padding: 13px;
+    background: #181818;
+    border-radius: 8px;
+    border: 1px solid #292929;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.result i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #777;
+    flex-shrink: 0;
+}
+
+.result.success i {
+    background: #30d158;
+}
+
+.result.error i {
+    background: #ff453a;
+}
+
+#mensaje {
+    color: #999;
+    font-size: 12px;
+    margin: 0;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    padding: 13px 0;
+    border-bottom: 1px solid #242424;
+    font-size: 12px;
+}
+
+.info:last-child {
+    border-bottom: none;
+}
+
+.info span:first-child {
+    color: #777;
+}
+
+.info span:last-child {
+    color: #ccc;
+}
+
+.footer {
+    text-align: center;
+    color: #444;
+    font-size: 10px;
+    margin-top: 30px;
+    letter-spacing: .8px;
+}
+
+@media (max-width: 420px) {
+    body {
+        padding: 18px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .card {
+        padding: 16px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<h2>Control Tenda SP3</h2>
+<div class="main">
 
-<button class="on" onclick="cambiar(1)">Encender</button>
-<button class="off" onclick="cambiar(0)">Apagar</button>
+    <header class="header">
+        <div class="brand">Control Center</div>
+        <div class="header-right">LOCAL NETWORK</div>
+    </header>
 
-<p id="mensaje">Conectado a la red local</p>
+    <h1>Enchufe inteligente</h1>
+    <p class="subtitle">Control remoto de dispositivos de tu red local.</p>
+
+    <div class="connection online" id="connection">
+        <i></i>
+        <span>Panel preparado</span>
+    </div>
+
+    <div class="card">
+
+        <div class="card-head">
+
+            <div class="device">
+                <div class="device-icon">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="5" y="3" width="14" height="18" rx="3"/>
+                        <path d="M9 8v3M15 8v3M12 13v3"/>
+                    </svg>
+                </div>
+
+                <div class="device-info">
+                    <strong>Tenda SP3</strong>
+                    <small>Smart Plug · 192.168.1.66</small>
+                </div>
+            </div>
+
+            <span class="badge">LAN</span>
+
+        </div>
+
+        <div class="section-title">Control de alimentación</div>
+
+        <div class="buttons">
+            <button class="on" id="btnOn" onclick="cambiar(1)">
+                Encender
+            </button>
+
+            <button class="off" id="btnOff" onclick="cambiar(0)">
+                Apagar
+            </button>
+        </div>
+
+        <div class="result" id="result">
+            <i></i>
+            <p id="mensaje">Esperando una orden</p>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="section-title" style="margin-top:0">
+            Información del dispositivo
+        </div>
+
+        <div class="info">
+            <span>Modelo</span>
+            <span>Tenda SP3</span>
+        </div>
+
+        <div class="info">
+            <span>Dirección IP</span>
+            <span>192.168.1.66</span>
+        </div>
+
+        <div class="info">
+            <span>Puerto</span>
+            <span>5000</span>
+        </div>
+
+        <div class="info">
+            <span>Conexión</span>
+            <span>Red local</span>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        CONTROL CENTER · ZIMAPAD
+    </div>
+
+</div>
 
 <script>
 function cambiar(estado) {
+
+    var mensaje = document.getElementById("mensaje");
+    var result = document.getElementById("result");
+    var btnOn = document.getElementById("btnOn");
+    var btnOff = document.getElementById("btnOff");
+
+    mensaje.innerHTML = estado === 1
+        ? "Enviando orden de encendido..."
+        : "Enviando orden de apagado...";
+
+    result.className = "result";
+
+    btnOn.disabled = true;
+    btnOff.disabled = true;
 
     var xhr = new XMLHttpRequest();
 
@@ -33,24 +387,34 @@ function cambiar(estado) {
     xhr.setRequestHeader("Content-Type", "text/plain");
 
     xhr.onreadystatechange = function() {
+
         if (xhr.readyState === 4) {
-            document.getElementById("mensaje").innerHTML =
-                "Orden enviada. Código: " + xhr.status;
+
+            if (xhr.status >= 200 && xhr.status < 300) {
+                mensaje.innerHTML = "Respuesta recibida. Código: " + xhr.status;
+                result.className = "result success";
+            } else {
+                mensaje.innerHTML = "Error HTTP: " + xhr.status;
+                result.className = "result error";
+            }
+
+            btnOn.disabled = false;
+            btnOff.disabled = false;
         }
     };
 
     xhr.onerror = function() {
-        document.getElementById("mensaje").innerHTML =
-            "No se pudo comprobar la respuesta.";
+
+        mensaje.innerHTML = "No se pudo conectar con el dispositivo.";
+        result.className = "result error";
+
+        btnOn.disabled = false;
+        btnOff.disabled = false;
     };
 
     xhr.send(JSON.stringify({
         status: estado
     }));
-
-    document.getElementById("mensaje").innerHTML =
-        estado === 1 ? "Enviando orden de encendido..." :
-                       "Enviando orden de apagado...";
 }
 </script>
 
